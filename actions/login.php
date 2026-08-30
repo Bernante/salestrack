@@ -60,7 +60,11 @@ try {
 
 } catch (Exception $e) {
     error_log('Login Exception: ' . $e->getMessage());
-    $_SESSION['flash_error'] = 'An unexpected error occurred. Please try again.';
+    if (strpos($e->getMessage(), 'Database connection failed') !== false) {
+        $_SESSION['flash_error'] = $e->getMessage();
+    } else {
+        $_SESSION['flash_error'] = 'An unexpected error occurred. Please try again.';
+    }
     header('Location: /login.php');
     exit;
 }
