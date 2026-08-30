@@ -14,16 +14,16 @@ if (file_exists(__DIR__ . '/database.local.php')) {
 
 if (!defined('DB_HOST')) define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1');
 if (!defined('DB_PORT')) define('DB_PORT', getenv('DB_PORT') ?: '3306');
-if (!defined('DB_NAME')) define('DB_NAME', getenv('DB_NAME') ?: 'egg_ice_db');
-if (!defined('DB_USER')) define('DB_USER', getenv('DB_USER') ?: 'root');
-if (!defined('DB_PASS')) define('DB_PASS', getenv('DB_PASS') !== false ? getenv('DB_PASS') : '');
+if (!defined('DB_NAME')) define('DB_NAME', getenv('DB_NAME') ?: 'if0_42783325_salestrack2');
+if (!defined('DB_USER')) define('DB_USER', getenv('DB_USER') ?: 'if0_42783325');
+if (!defined('DB_PASS')) define('DB_PASS', getenv('DB_PASS') !== false ? getenv('DB_PASS') : 'Patrick121603');
 if (!defined('DB_CHARSET')) define('DB_CHARSET', 'utf8mb4');
 
 /**
  * Returns a Singleton PDO Database Connection Instance
  * 
  * @return PDO
- * @throws PDOException
+ * @throws Exception
  */
 function getDBConnection(): PDO {
     static $pdo = null;
@@ -46,9 +46,8 @@ function getDBConnection(): PDO {
         try {
             $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
         } catch (PDOException $e) {
-            // Log error internally in production instead of dumping raw credentials
             error_log('Database Connection Error: ' . $e->getMessage());
-            throw new Exception('Database connection failed. Please ensure MySQL is running and configured correctly.');
+            throw new Exception('Database connection failed: ' . $e->getMessage());
         }
     }
 
