@@ -66,9 +66,18 @@ unset($_SESSION['flash_error']);
         <!-- Login Form -->
         <div class="p-6 sm:p-8 space-y-6">
             <?php if ($flashError): ?>
-                <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md text-sm font-semibold flex items-center gap-3" role="alert">
-                    <i class="fas fa-exclamation-circle text-lg text-red-500"></i>
-                    <span><?= e($flashError); ?></span>
+                <div class="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md text-sm font-semibold space-y-2" role="alert">
+                    <div class="flex items-center gap-3">
+                        <i class="fas fa-exclamation-circle text-lg text-red-500 flex-shrink-0"></i>
+                        <span><?= e($flashError); ?></span>
+                    </div>
+                    <?php if (stripos($flashError, 'Database') !== false || stripos($flashError, 'connection') !== false): ?>
+                        <div class="pt-2 border-t border-red-200 text-xs">
+                            <a href="/db-setup.php" class="inline-flex items-center gap-1.5 text-brand-600 font-bold underline hover:text-brand-700">
+                                <i class="fas fa-tools"></i> Open Setup Assistant to configure DB Host & Tables &rarr;
+                            </a>
+                        </div>
+                    <?php endif; ?>
                 </div>
             <?php endif; ?>
 
