@@ -94,8 +94,8 @@ include __DIR__ . '/../includes/header.php';
         </form>
     </div>
 
-    <!-- Summary Metrics (4 DataAI stat cards) -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 xl:grid-cols-4">
+    <!-- Summary Metrics (2 DataAI stat cards) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 max-w-3xl mx-auto">
         <div class="w-full rounded-md border border-brand-200 bg-white shadow-card">
             <div class="w-full p-6 pb-0"><div class="flex items-center justify-between border-b border-brand-200 pb-4">
                 <h5 class="items-center font-semibold inline-flex text-lg text-brand-700"><span class="flex items-center text-brand-500 bg-brand-100 h-9 justify-center mr-2 rounded-sm w-9"><i class="fas fa-peso-sign"></i></span>Total Revenue</h5>
@@ -112,24 +112,6 @@ include __DIR__ . '/../includes/header.php';
             </div></div>
             <div class="w-full p-6"><h4 class="font-bold text-brand-500 text-2xl mb-4"><?= number_format($totalTxns); ?></h4>
                 <div class="flex items-center"><span class="items-center font-semibold inline-flex justify-center px-2 py-1 rounded-md bg-green-50 text-green-600 mr-2 text-sm"><i class="fas mr-2 fa-check"></i>Completed</span><p class="font-semibold text-sm text-brand-300">Receipts processed</p></div>
-            </div>
-        </div>
-        <div class="w-full rounded-md border border-brand-200 bg-white shadow-card">
-            <div class="w-full p-6 pb-0"><div class="flex items-center justify-between border-b border-brand-200 pb-4">
-                <h5 class="items-center font-semibold inline-flex text-lg text-brand-700"><span class="flex items-center text-brand-500 bg-brand-100 h-9 justify-center mr-2 rounded-sm w-9"><i class="fas fa-egg"></i></span>Eggs Dispatched</h5>
-                <i class="fas fa-ellipsis-h text-brand-300"></i>
-            </div></div>
-            <div class="w-full p-6"><h4 class="font-bold text-brand-500 text-2xl mb-4"><?= number_format($totalEggs); ?></h4>
-                <div class="flex items-center"><span class="items-center font-semibold inline-flex justify-center px-2 py-1 rounded-md bg-green-50 text-green-600 mr-2 text-sm"><i class="fas mr-2 fa-arrow-up"></i>Total</span><p class="font-semibold text-sm text-brand-300">S: <?= $smallEggs; ?> | M: <?= $mediumEggs; ?> | L: <?= $largeEggs; ?></p></div>
-            </div>
-        </div>
-        <div class="w-full rounded-md border border-brand-200 bg-white shadow-card">
-            <div class="w-full p-6 pb-0"><div class="flex items-center justify-between border-b border-brand-200 pb-4">
-                <h5 class="items-center font-semibold inline-flex text-lg text-brand-700"><span class="flex items-center text-brand-500 bg-brand-100 h-9 justify-center mr-2 rounded-sm w-9"><i class="fas fa-snowflake"></i></span>Ice Dispatched</h5>
-                <i class="fas fa-ellipsis-h text-brand-300"></i>
-            </div></div>
-            <div class="w-full p-6"><h4 class="font-bold text-brand-500 text-2xl mb-4"><?= number_format($totalIce); ?></h4>
-                <div class="flex items-center"><span class="items-center font-semibold inline-flex justify-center px-2 py-1 rounded-md bg-green-50 text-green-600 mr-2 text-sm"><i class="fas mr-2 fa-arrow-up"></i>Total</span><p class="font-semibold text-sm text-brand-300">Units sold</p></div>
             </div>
         </div>
     </div>
