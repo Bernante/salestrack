@@ -175,6 +175,9 @@ document.addEventListener('DOMContentLoaded', function () {
         },
         yaxis: [
             {
+                min: 1000,
+                max: 10000,
+                tickAmount: 9,
                 title: { text: 'Sales (₱)', style: { color: brandPrimary, fontSize: '12px', fontWeight: 600 } },
                 labels: {
                     formatter: function(v) { return '₱' + Math.round(v).toLocaleString('en-PH'); },
@@ -215,7 +218,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     chart: { height: 240 },
                     xaxis: { labels: { style: { fontSize: '10px' }, rotate: -45, rotateAlways: true } },
                     yaxis: [
-                        { title: { text: '' }, labels: { formatter: function(v) { return '₱' + (v >= 1000 ? (v/1000).toFixed(0) + 'k' : v); }, style: { fontSize: '10px' } } },
+                        { min: 1000, max: 10000, tickAmount: 9, title: { text: '' }, labels: { formatter: function(v) { return '₱' + (v >= 1000 ? (v/1000).toFixed(0) + 'k' : v); }, style: { fontSize: '10px' } } },
                         { opposite: true, title: { text: '' }, labels: { formatter: function(v) { return Math.round(v); }, style: { fontSize: '10px' } } }
                     ]
                 }
