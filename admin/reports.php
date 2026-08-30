@@ -265,6 +265,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             },
             {
+                min: 10,
+                max: 100,
+                tickAmount: 9,
                 opposite: true,
                 title: { text: 'Transactions', style: { color: greenAccent, fontSize: '12px', fontWeight: 600 } },
                 labels: {
@@ -299,7 +302,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     xaxis: { labels: { style: { fontSize: '10px' }, rotate: -45, rotateAlways: true } },
                     yaxis: [
                         { min: 1000, max: 10000, tickAmount: 9, title: { text: '' }, labels: { formatter: function(v) { return '₱' + (v >= 1000 ? (v/1000).toFixed(0) + 'k' : v); }, style: { fontSize: '10px' } } },
-                        { opposite: true, title: { text: '' }, labels: { formatter: function(v) { return Math.round(v); }, style: { fontSize: '10px' } } }
+                        { min: 10, max: 100, tickAmount: 9, opposite: true, title: { text: '' }, labels: { formatter: function(v) { return Math.round(v); }, style: { fontSize: '10px' } } }
                     ]
                 }
             }
