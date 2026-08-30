@@ -1,5 +1,6 @@
 # Config / Secrets
 config/config.local.php
+config/database.local.php
 .env
 
 # OS / Temporary Files

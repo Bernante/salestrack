@@ -1,0 +1,18 @@
+<?php
+/**
+ * Database Local / Production Configuration
+ * 
+ * Instructions for InfinityFree Hosting:
+ * 1. Copy or rename this file to 'database.local.php' inside the 'config/' folder on your server.
+ * 2. Fill in your MySQL details from InfinityFree Control Panel (MySQL Databases):
+ *    - Hostname (e.g., sql123.infinityfree.com)
+ *    - Database Name (e.g., if0_38xxxxxx_salestrack)
+ *    - Username (e.g., if0_38xxxxxx)
+ *    - Password (your vPanel / Account Password)
+ */
+
+define('DB_HOST', 'sqlxxx.infinityfree.com');
+define('DB_PORT', '3306');
+define('DB_NAME', 'if0_38xxxxxx_salestrack');
+define('DB_USER', 'if0_38xxxxxx');
+define('DB_PASS', 'YourvPanelPasswordHere');
