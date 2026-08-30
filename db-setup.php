@@ -1,16 +1,66 @@
 <?php
 /**
- * SalesTrack Web Database Installer & Connection Setup
+ * SalesTrack Web Database Installer & Auto-Scanner Setup Assistant
  */
+set_time_limit(60);
 $message = null;
 $messageType = null;
+$foundHost = null;
 
 $dbHost = $_POST['db_host'] ?? 'sql302.infinityfree.com';
 $dbName = $_POST['db_name'] ?? 'if0_42783325_salestrack2';
 $dbUser = $_POST['db_user'] ?? 'if0_42783325';
 $dbPass = $_POST['db_pass'] ?? 'Patrick121603';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+if (isset($_POST['auto_scan'])) {
+    $domains = ['infinityfree.com', 'epizy.com', 'byetcluster.com'];
+    $tested = 0;
+    
+    $candidateHosts = [];
+    if (!empty($dbHost)) {
+        $candidateHosts[] = trim($dbHost);
+    }
+    for ($i = 101; $i <= 350; $i++) {
+        foreach ($domains as $d) {
+            $candidateHosts[] = "sql{$i}.{$d}";
+        }
+    }
+
+    foreach ($candidateHosts as $host) {
+        $fp = @fsockopen($host, 3306, $errno, $errstr, 0.3);
+        if ($fp) {
+            fclose($fp);
+            $tested++;
+            try {
+                $dsn = "mysql:host={$host};port=3306;charset=utf8mb4";
+                $pdo = new PDO($dsn, $dbUser, $dbPass, [
+                    PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                    PDO::ATTR_TIMEOUT => 2
+                ]);
+                $foundHost = $host;
+                $dbHost = $host;
+                $message = "Found active MySQL Host server: {$host}! Authenticated successfully.";
+                $messageType = "success";
+                break;
+            } catch (PDOException $e) {
+                if ($e->getCode() == 1049 || strpos($e->getMessage(), '1049') !== false) {
+                    $foundHost = $host;
+                    $dbHost = $host;
+                    $message = "Found active MySQL Host server: {$host}! (Database name needs to be selected/created).";
+                    $messageType = "success";
+                    break;
+                }
+            }
+        }
+    }
+
+    if (!$foundHost) {
+        $message = "Scanned active MySQL servers. Access denied on all. Check your MySQL Password in InfinityFree Client Area -> Account Details.";
+        $messageType = "error";
+    }
+}
+
+if (isset($_POST['save_config'])) {
     try {
         $dsn = "mysql:host={$dbHost};port=3306;dbname={$dbName};charset=utf8mb4";
         $pdo = new PDO($dsn, $dbUser, $dbPass, [
@@ -34,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $pdo->exec($sql);
         }
 
-        $message = "Database connected and imported successfully! You can now log in.";
+        $message = "Database connected and schema imported successfully! You can now log in.";
         $messageType = "success";
     } catch (PDOException $e) {
         $message = "Connection Failed: " . $e->getMessage();
@@ -106,9 +156,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <input type="password" name="db_pass" value="<?= htmlspecialchars($dbPass); ?>" required
                            class="w-full px-3 py-2 border border-slate-300 rounded text-sm font-mono">
                 </div>
-                <button type="submit" class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-sm uppercase rounded shadow">
-                    Test Connection & Initialize Database
-                </button>
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" name="auto_scan" value="1" class="w-1/2 py-3 bg-slate-700 hover:bg-slate-800 text-white font-bold text-xs uppercase rounded shadow flex items-center justify-center gap-2">
+                        <i class="fas fa-search"></i> Auto-Detect Server Host
+                    </button>
+                    <button type="submit" name="save_config" value="1" class="w-1/2 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs uppercase rounded shadow flex items-center justify-center gap-2">
+                        <i class="fas fa-save"></i> Save & Initialize
+                    </button>
+                </div>
             </form>
         </div>
     </div>
