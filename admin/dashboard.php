@@ -60,17 +60,19 @@ include __DIR__ . '/../includes/header.php';
                         ₱0.00
                     </span>
                 </div>
-                <div class="flex items-center gap-2 flex-wrap">
-                    <?php
-                    $currentYear = intval(date('Y'));
-                    for ($y = $currentYear - 2; $y <= $currentYear; $y++):
-                    ?>
-                    <button type="button"
-                        class="sales-trend-year-btn px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 <?= ($y === $currentYear) ? 'bg-brand-500 text-white shadow-md' : 'bg-brand-100 text-brand-500 hover:bg-brand-200'; ?>"
-                        data-year="<?= $y; ?>">
-                        <?= $y; ?>
-                    </button>
-                    <?php endfor; ?>
+                <div class="relative inline-block">
+                    <select id="salesTrendYearSelect" class="bg-brand-50 border border-brand-200 text-brand-700 font-semibold text-sm rounded-md px-3.5 py-2 pr-9 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 shadow-sm cursor-pointer transition-all appearance-none">
+                        <?php
+                        $years = [2026, 2027, 2028, 2029, 2030];
+                        $defaultYear = 2026;
+                        foreach ($years as $y):
+                        ?>
+                            <option value="<?= $y; ?>" <?= ($y === $defaultYear) ? 'selected' : ''; ?>><?= $y; ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-brand-500">
+                        <i class="fas fa-chevron-down text-xs"></i>
+                    </div>
                 </div>
             </div>
         </div>
@@ -246,17 +248,15 @@ document.addEventListener('DOMContentLoaded', function () {
             .catch(err => console.error('Sales trend error:', err));
     }
 
-    document.querySelectorAll('.sales-trend-year-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-            document.querySelectorAll('.sales-trend-year-btn').forEach(b => {
-                b.className = 'sales-trend-year-btn px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 bg-brand-100 text-brand-500 hover:bg-brand-200';
-            });
-            this.className = 'sales-trend-year-btn px-3 py-1.5 rounded-md text-sm font-semibold transition-all duration-200 bg-brand-500 text-white shadow-md';
-            loadSalesTrend(this.dataset.year);
+    const yearSelect = document.getElementById('salesTrendYearSelect');
+    if (yearSelect) {
+        yearSelect.addEventListener('change', function () {
+            loadSalesTrend(this.value);
         });
-    });
-
-    loadSalesTrend(<?= $currentYear; ?>);
+        loadSalesTrend(yearSelect.value);
+    } else {
+        loadSalesTrend(2026);
+    }
 });
 </script>
 <?php include __DIR__ . '/../includes/footer.php'; ?>
