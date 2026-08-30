@@ -71,10 +71,10 @@ unset($_SESSION['flash_error']);
                         <i class="fas fa-exclamation-circle text-lg text-red-500 flex-shrink-0"></i>
                         <span><?= e($flashError); ?></span>
                     </div>
-                    <?php if (stripos($flashError, 'Database') !== false || stripos($flashError, 'connection') !== false): ?>
+                    <?php if (stripos($flashError, 'Database') !== false || stripos($flashError, 'connection') !== false || stripos($flashError, 'Access denied') !== false || stripos($flashError, '127.0.0.1') !== false || stripos($flashError, 'refused') !== false): ?>
                         <div class="pt-2 border-t border-red-200 text-xs">
                             <a href="/db-setup.php" class="inline-flex items-center gap-1.5 text-brand-600 font-bold underline hover:text-brand-700">
-                                <i class="fas fa-tools"></i> Open Setup Assistant to configure DB Host & Tables &rarr;
+                                <i class="fas fa-tools"></i> Open Database Setup Assistant &rarr;
                             </a>
                         </div>
                     <?php endif; ?>
