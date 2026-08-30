@@ -9,20 +9,6 @@ $todayStat = $stmtToday->fetch();
 $todaySales = floatval($todayStat['total_sales']);
 $todayTxns = intval($todayStat['transaction_count']);
 
-$stmtQty = $db->query('
-    SELECT p.name AS product_name, COALESCE(SUM(si.quantity), 0) as total_qty
-    FROM sale_items si JOIN sales s ON si.sale_id = s.id
-    JOIN product_variants pv ON si.product_variant_id = pv.id
-    JOIN products p ON pv.product_id = p.id
-    WHERE s.status = "completed" AND DATE(s.created_at) = CURDATE()
-    GROUP BY p.name
-');
-$todayEggs = 0; $todayIce = 0;
-foreach ($stmtQty->fetchAll() as $pq) {
-    if (strcasecmp($pq['product_name'], 'Egg') === 0) $todayEggs = intval($pq['total_qty']);
-    if (strcasecmp($pq['product_name'], 'Ice') === 0) $todayIce = intval($pq['total_qty']);
-}
-
 $stmtVariant = $db->query('
     SELECT p.name AS product_name, pv.variant_name, COALESCE(SUM(si.quantity), 0) as total_qty, COALESCE(SUM(si.subtotal), 0) as total_revenue
     FROM sale_items si JOIN sales s ON si.sale_id = s.id
@@ -40,7 +26,7 @@ $recentSales = $db->query('
 include __DIR__ . '/../includes/header.php';
 ?>
 <div class="py-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 xl:grid-cols-4">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 max-w-3xl mx-auto">
         <div class="w-full rounded-md border border-brand-200 bg-white shadow-card">
             <div class="w-full p-6 pb-0"><div class="flex items-center justify-between border-b border-brand-200 pb-4">
                 <h5 class="items-center font-semibold inline-flex text-lg text-brand-700"><span class="flex items-center text-brand-500 bg-brand-100 h-9 justify-center mr-2 rounded-sm w-9"><i class="fas fa-peso-sign"></i></span>Today's Sales</h5>
@@ -57,24 +43,6 @@ include __DIR__ . '/../includes/header.php';
             </div></div>
             <div class="w-full p-6"><h4 class="font-bold text-brand-500 text-2xl mb-4"><?= number_format($todayTxns); ?></h4>
                 <div class="flex items-center"><span class="items-center font-semibold inline-flex justify-center px-2 py-1 rounded-md bg-green-50 text-green-600 mr-2 text-sm"><i class="fas mr-2 fa-check"></i>completed</span><p class="font-semibold text-sm text-brand-300">Receipts Processed</p></div>
-            </div>
-        </div>
-        <div class="w-full rounded-md border border-brand-200 bg-white shadow-card">
-            <div class="w-full p-6 pb-0"><div class="flex items-center justify-between border-b border-brand-200 pb-4">
-                <h5 class="items-center font-semibold inline-flex text-lg text-brand-700"><span class="flex items-center text-brand-500 bg-brand-100 h-9 justify-center mr-2 rounded-sm w-9"><i class="fas fa-egg"></i></span>Eggs Sold</h5>
-                <i class="fas fa-ellipsis-h text-brand-300"></i>
-            </div></div>
-            <div class="w-full p-6"><h4 class="font-bold text-brand-500 text-2xl mb-4"><?= number_format($todayEggs); ?></h4>
-                <div class="flex items-center"><span class="items-center font-semibold inline-flex justify-center px-2 py-1 rounded-md bg-green-50 text-green-600 mr-2 text-sm"><i class="fas mr-2 fa-arrow-up"></i>today</span><p class="font-semibold text-sm text-brand-300">Units Dispatched</p></div>
-            </div>
-        </div>
-        <div class="w-full rounded-md border border-brand-200 bg-white shadow-card">
-            <div class="w-full p-6 pb-0"><div class="flex items-center justify-between border-b border-brand-200 pb-4">
-                <h5 class="items-center font-semibold inline-flex text-lg text-brand-700"><span class="flex items-center text-brand-500 bg-brand-100 h-9 justify-center mr-2 rounded-sm w-9"><i class="fas fa-snowflake"></i></span>Ice Sold</h5>
-                <i class="fas fa-ellipsis-h text-brand-300"></i>
-            </div></div>
-            <div class="w-full p-6"><h4 class="font-bold text-brand-500 text-2xl mb-4"><?= number_format($todayIce); ?></h4>
-                <div class="flex items-center"><span class="items-center font-semibold inline-flex justify-center px-2 py-1 rounded-md bg-green-50 text-green-600 mr-2 text-sm"><i class="fas mr-2 fa-arrow-up"></i>today</span><p class="font-semibold text-sm text-brand-300">Units Dispatched</p></div>
             </div>
         </div>
     </div>
