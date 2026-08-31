@@ -74,7 +74,7 @@ try {
         $stmtUpdateVariant = $db->prepare('UPDATE product_variants SET variant_name = :vname, quantity = :quantity, price = :price, status = :vstatus WHERE id = :vid AND product_id = :pid');
         foreach ($existingVariants as $vid => $vData) {
             $vName = trim($vData['name'] ?? '');
-            $vQty = max(1, intval($vData['quantity'] ?? $vData['item_quantity'] ?? $vData['qty'] ?? 1));
+            $vQty = max(1, intval($vData['quantity'] ?? 1));
             $vPrice = max(0, floatval($vData['price'] ?? 0));
             $vStatus = ($vData['status'] ?? 'active') === 'active' ? 'active' : 'inactive';
 
@@ -93,7 +93,7 @@ try {
 
     // 3. Insert New Variants if provided
     $newVariantNames = $_POST['new_variant_name'] ?? [];
-    $newVariantQuantities = $_POST['new_variant_quantity'] ?? $_POST['new_item_quantity'] ?? [];
+    $newVariantQuantities = $_POST['new_variant_quantity'] ?? [];
     $newVariantPrices = $_POST['new_variant_price'] ?? [];
 
     if (is_array($newVariantNames)) {

@@ -20,7 +20,7 @@ if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
 
 $productName = trim($_POST['name'] ?? '');
 $variantNames = $_POST['variant_name'] ?? [];
-$variantQuantities = $_POST['quantity'] ?? $_POST['variant_quantity'] ?? $_POST['item_quantity'] ?? [];
+$variantQuantities = $_POST['quantity'] ?? [];
 $variantPrices = $_POST['variant_price'] ?? [];
 
 if (empty($productName)) {

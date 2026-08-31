@@ -52,7 +52,7 @@ include __DIR__ . '/../includes/header.php';
                     </div>
                     <div class="sm:col-span-3">
                         <label class="block text-xs font-semibold text-brand-700 mb-1">Selling Qty (pcs) *</label>
-                        <input type="number" min="1" step="1" name="item_quantity[]" value="1" placeholder="Qty (e.g. 1, 30)" required class="w-full px-3.5 py-2 rounded-md border border-brand-200 text-sm text-brand-700 focus:outline-none focus:border-brand-500">
+                        <input type="number" min="1" step="1" name="quantity[]" value="1" placeholder="Qty (e.g. 1, 30)" required class="w-full px-3.5 py-2 rounded-md border border-brand-200 text-sm text-brand-700 focus:outline-none focus:border-brand-500">
                     </div>
                     <div class="sm:col-span-3">
                         <label class="block text-xs font-semibold text-brand-700 mb-1">Price (₱) *</label>

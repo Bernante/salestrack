@@ -92,7 +92,7 @@ include __DIR__ . '/../includes/header.php';
                                     <td class="px-6 py-3.5 font-semibold text-brand-700"><?= e($v['name']); ?></td>
                                     <td class="px-6 py-3.5 text-brand-700 font-medium">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-brand-100 text-brand-700 border border-brand-200">
-                                            <?= intval($v['item_quantity']); ?> <?= intval($v['item_quantity']) === 1 ? 'pc' : 'pcs'; ?>
+                                            <?= intval($v['quantity']); ?> <?= intval($v['quantity']) === 1 ? 'pc' : 'pcs'; ?>
                                         </span>
                                     </td>
                                     <td class="px-6 py-3.5 text-brand-500 font-bold text-base">₱<?= number_format($v['price'], 2); ?></td>
