@@ -6,11 +6,21 @@ require_once __DIR__ . '/../includes/csrf.php';
 $db = getDBConnection();
 $rows = $db->query('
     SELECT p.id AS product_id, p.name AS product_name, p.image AS product_image,
-           pv.id AS variant_id, pv.variant_name, COALESCE(pv.quantity, 1) AS quantity, pv.price, pv.status AS variant_status
+           pv.id AS variant_id, pv.variant_name, COALESCE(pv.quantity, 1) AS quantity, 
+           pv.selling_unit, pv.pieces_per_unit, pv.price, pv.status AS variant_status
     FROM products p JOIN product_variants pv ON p.id = pv.product_id
     WHERE p.status = "active" AND pv.status = "active"
     ORDER BY p.name ASC, pv.price ASC
 ')->fetchAll();
+
+// DEBUG: Log what we're getting from the database
+if (getenv('DEBUG_BUNDLE')) {
+    error_log('=== BUNDLE DEBUG ===');
+    error_log('Total variants: ' . count($rows));
+    foreach ($rows as $r) {
+        error_log("Product: {$r['product_name']}, Variant: {$r['variant_name']}, selling_unit: {$r['selling_unit']}, pieces_per_unit: {$r['pieces_per_unit']}, price: {$r['price']}");
+    }
+}
 
 $productsMap = [];
 foreach ($rows as $r) {
@@ -24,11 +34,13 @@ foreach ($rows as $r) {
         ];
     }
     $productsMap[$pid]['variants'][] = [
-        'id'           => $r['variant_id'],
-        'variant_name' => $r['variant_name'],
-        'quantity'     => intval($r['quantity'] ?? 1),
-        'price'        => floatval($r['price']),
-        'status'       => $r['variant_status']
+        'id'                => $r['variant_id'],
+        'variant_name'      => $r['variant_name'],
+        'selling_quantity'  => intval($r['quantity'] ?? 1),
+        'selling_unit'      => $r['selling_unit'] ?? 'piece',
+        'pieces_per_unit'   => intval($r['pieces_per_unit'] ?? 1),
+        'price'             => floatval($r['price']),
+        'status'            => $r['variant_status']
     ];
 }
 $productsJson = json_encode(array_values($productsMap));
@@ -153,7 +165,7 @@ include __DIR__ . '/../includes/header.php';
                         <thead class="bg-brand-50 text-xs text-brand-300 font-semibold border-b border-brand-200">
                             <tr>
                                 <th class="p-2">Item</th>
-                                <th class="p-2">Qty</th>
+                                <th class="p-2">Pieces</th>
                                 <th class="p-2">Price</th>
                                 <th class="p-2">Subtotal</th>
                                 <th class="p-2 text-right"></th>

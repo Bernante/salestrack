@@ -21,7 +21,9 @@ if (!defined('DB_CHARSET')) define('DB_CHARSET', 'utf8mb4');
 
 /**
  * Auto-runs database migrations to ensure schema is up-to-date
- * This handles renaming item_quantity to quantity in product_variants table
+ * This handles:
+ * - Renaming item_quantity to quantity in product_variants table
+ * - Adding selling_unit and pieces_per_unit columns for selling units feature
  * 
  * @param PDO $pdo
  * @return void
@@ -43,7 +45,26 @@ function runDatabaseMigrations($pdo) {
             // Only old column exists - rename it
             $pdo->exec("ALTER TABLE product_variants CHANGE COLUMN item_quantity quantity INT NOT NULL DEFAULT 1");
         }
-        // If only new column exists or neither exists, do nothing (schema is correct or will be created fresh)
+        
+        // Add selling_unit column if it doesn't exist
+        if (!in_array('selling_unit', $columnNames)) {
+            $pdo->exec("
+                ALTER TABLE product_variants 
+                ADD COLUMN selling_unit VARCHAR(20) NOT NULL DEFAULT 'piece' 
+                AFTER quantity
+            ");
+            error_log('Database Migration: Added selling_unit column to product_variants');
+        }
+        
+        // Add pieces_per_unit column if it doesn't exist
+        if (!in_array('pieces_per_unit', $columnNames)) {
+            $pdo->exec("
+                ALTER TABLE product_variants 
+                ADD COLUMN pieces_per_unit INT NOT NULL DEFAULT 1 
+                AFTER selling_unit
+            ");
+            error_log('Database Migration: Added pieces_per_unit column to product_variants');
+        }
         
     } catch (Exception $e) {
         // Silently fail - the table may not exist yet on fresh installations

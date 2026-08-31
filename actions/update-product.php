@@ -68,23 +68,64 @@ try {
         ]);
     }
 
-    // 2. Update Existing Variants
-    $existingVariants = $_POST['existing_variants'] ?? []; // array of id => ['name' => ..., 'quantity' => ..., 'price' => ..., 'status' => ...]
-    if (is_array($existingVariants)) {
-        $stmtUpdateVariant = $db->prepare('UPDATE product_variants SET variant_name = :vname, quantity = :quantity, price = :price, status = :vstatus WHERE id = :vid AND product_id = :pid');
-        foreach ($existingVariants as $vid => $vData) {
-            $vName = trim($vData['name'] ?? '');
-            $vQty = max(1, intval($vData['quantity'] ?? 1));
-            $vPrice = max(0, floatval($vData['price'] ?? 0));
-            $vStatus = ($vData['status'] ?? 'active') === 'active' ? 'active' : 'inactive';
+    // 2. Update Existing Variants with selling_unit and pieces_per_unit
+    // Support both Admin format (variant_id[], variant_name[], etc.) and Staff format (existing_variants[id][name], etc.)
+    
+    $stmtUpdateVariant = $db->prepare('UPDATE product_variants SET variant_name = :vname, selling_unit = :unit, pieces_per_unit = :pieces, price = :price, status = :vstatus WHERE id = :vid AND product_id = :pid');
+    
+    // Handle Admin format: variant_id[], variant_name[], selling_unit[], pieces_per_unit[], variant_price[], variant_status[]
+    if (!empty($_POST['variant_id']) && is_array($_POST['variant_id'])) {
+        $variantIds = $_POST['variant_id'];
+        $variantNames = $_POST['variant_name'] ?? [];
+        $sellingUnits = $_POST['selling_unit'] ?? [];
+        $piecesPerUnit = $_POST['pieces_per_unit'] ?? [];
+        $variantPrices = $_POST['variant_price'] ?? [];
+        $variantStatuses = $_POST['variant_status'] ?? [];
+
+        foreach ($variantIds as $idx => $vid) {
+            $vid = intval($vid);
+            if ($vid <= 0) continue;
+            
+            $vName = trim($variantNames[$idx] ?? '');
+            $vUnit = trim($sellingUnits[$idx] ?? 'piece');
+            $vPieces = max(1, intval($piecesPerUnit[$idx] ?? 1));
+            $vPrice = max(0, floatval($variantPrices[$idx] ?? 0));
+            $vStatus = ($variantStatuses[$idx] ?? 'active') === 'active' ? 'active' : 'inactive';
 
             if (!empty($vName)) {
                 $stmtUpdateVariant->execute([
                     ':vname'    => $vName,
-                    ':quantity' => $vQty,
+                    ':unit'     => $vUnit,
+                    ':pieces'   => $vPieces,
                     ':price'    => $vPrice,
                     ':vstatus'  => $vStatus,
-                    ':vid'      => intval($vid),
+                    ':vid'      => $vid,
+                    ':pid'      => $productId
+                ]);
+            }
+        }
+    }
+    
+    // Handle Staff format: existing_variants[id][name], existing_variants[id][selling_unit], etc.
+    if (!empty($_POST['existing_variants']) && is_array($_POST['existing_variants'])) {
+        foreach ($_POST['existing_variants'] as $vid => $variantData) {
+            $vid = intval($vid);
+            if ($vid <= 0) continue;
+            
+            $vName = trim($variantData['name'] ?? '');
+            $vUnit = trim($variantData['selling_unit'] ?? 'piece');
+            $vPieces = max(1, intval($variantData['pieces_per_unit'] ?? 1));
+            $vPrice = max(0, floatval($variantData['price'] ?? 0));
+            $vStatus = ($variantData['status'] ?? 'active') === 'active' ? 'active' : 'inactive';
+
+            if (!empty($vName)) {
+                $stmtUpdateVariant->execute([
+                    ':vname'    => $vName,
+                    ':unit'     => $vUnit,
+                    ':pieces'   => $vPieces,
+                    ':price'    => $vPrice,
+                    ':vstatus'  => $vStatus,
+                    ':vid'      => $vid,
                     ':pid'      => $productId
                 ]);
             }
@@ -93,21 +134,25 @@ try {
 
     // 3. Insert New Variants if provided
     $newVariantNames = $_POST['new_variant_name'] ?? [];
-    $newVariantQuantities = $_POST['new_variant_quantity'] ?? [];
+    $newSellingUnits = $_POST['new_selling_unit'] ?? [];
+    $newPiecesPerUnit = $_POST['new_variant_quantity'] ?? [];
     $newVariantPrices = $_POST['new_variant_price'] ?? [];
 
     if (is_array($newVariantNames)) {
-        $stmtInsertVariant = $db->prepare('INSERT INTO product_variants (product_id, variant_name, quantity, price, status) VALUES (:pid, :vname, :quantity, :price, "active")');
+        $stmtInsertVariant = $db->prepare('INSERT INTO product_variants (product_id, variant_name, selling_unit, pieces_per_unit, price, status) VALUES (:pid, :vname, :unit, :pieces, :price, "active")');
         foreach ($newVariantNames as $idx => $nName) {
             $nNameClean = trim($nName);
             if (empty($nNameClean)) continue;
-            $nQty = max(1, intval($newVariantQuantities[$idx] ?? 1));
+            
+            $nUnit = trim($newSellingUnits[$idx] ?? 'piece');
+            $nPieces = max(1, intval($newPiecesPerUnit[$idx] ?? 1));
             $nPrice = max(0, floatval($newVariantPrices[$idx] ?? 0));
 
             $stmtInsertVariant->execute([
                 ':pid'      => $productId,
                 ':vname'    => $nNameClean,
-                ':quantity' => $nQty,
+                ':unit'     => $nUnit,
+                ':pieces'   => $nPieces,
                 ':price'    => $nPrice
             ]);
         }

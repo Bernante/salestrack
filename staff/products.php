@@ -5,7 +5,7 @@ require_once __DIR__ . '/../includes/staff-auth.php';
 $db = getDBConnection();
 $rows = $db->query('
     SELECT p.id AS product_id, p.name AS product_name, p.image AS product_image, p.status AS product_status,
-           pv.id AS variant_id, pv.variant_name, pv.quantity, pv.price, pv.status AS variant_status
+           pv.id AS variant_id, pv.variant_name, pv.quantity, pv.selling_unit, pv.pieces_per_unit, pv.price, pv.status AS variant_status
     FROM products p
     LEFT JOIN product_variants pv ON p.id = pv.product_id
     ORDER BY p.id ASC, pv.id ASC
@@ -25,11 +25,13 @@ foreach ($rows as $row) {
     }
     if ($row['variant_id']) {
         $products[$pid]['variants'][] = [
-            'id'       => $row['variant_id'],
-            'name'     => $row['variant_name'],
-            'quantity' => intval($row['quantity'] ?? 1),
-            'price'    => $row['price'],
-            'status'   => $row['variant_status']
+            'id'              => $row['variant_id'],
+            'name'            => $row['variant_name'],
+            'quantity'        => intval($row['quantity'] ?? 1),
+            'selling_unit'    => $row['selling_unit'] ?? 'piece',
+            'pieces_per_unit' => intval($row['pieces_per_unit'] ?? 1),
+            'price'           => $row['price'],
+            'status'          => $row['variant_status']
         ];
     }
 }
@@ -54,7 +56,8 @@ include __DIR__ . '/../includes/header.php';
                         <th class="px-6 py-3.5 text-sm font-semibold text-brand-300">Photo</th>
                         <th class="px-6 py-3.5 text-sm font-semibold text-brand-300">Product Name</th>
                         <th class="px-6 py-3.5 text-sm font-semibold text-brand-300">Variant Name</th>
-                        <th class="px-6 py-3.5 text-sm font-semibold text-brand-300">Quantity</th>
+                        <th class="px-6 py-3.5 text-sm font-semibold text-brand-300">Selling Unit</th>
+                        <th class="px-6 py-3.5 text-sm font-semibold text-brand-300">Pieces</th>
                         <th class="px-6 py-3.5 text-sm font-semibold text-brand-300">Price (₱)</th>
                         <th class="px-6 py-3.5 text-sm font-semibold text-brand-300">Variant Status</th>
                         <th class="px-6 py-3.5 text-sm font-semibold text-brand-300 text-right">Action</th>
@@ -92,7 +95,21 @@ include __DIR__ . '/../includes/header.php';
                                     <td class="px-6 py-3.5 font-semibold text-brand-700"><?= e($v['name']); ?></td>
                                     <td class="px-6 py-3.5 text-brand-700 font-medium">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-brand-100 text-brand-700 border border-brand-200">
-                                            <?= intval($v['quantity']); ?> <?= intval($v['quantity']) === 1 ? 'pc' : 'pcs'; ?>
+                                            <?php
+                                                $unit = $v['selling_unit'] ?? 'piece';
+                                                $unitLabels = [
+                                                    'piece' => 'Piece',
+                                                    'half_tray' => 'Half Tray',
+                                                    'tray' => 'Tray',
+                                                    'bundle' => 'Bundle'
+                                                ];
+                                                echo e($unitLabels[$unit] ?? ucfirst(str_replace('_', ' ', $unit)));
+                                            ?>
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-3.5 text-brand-700 font-medium">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-brand-100 text-brand-700 border border-brand-200">
+                                            <?= intval($v['pieces_per_unit'] ?? 1); ?> <?= intval($v['pieces_per_unit'] ?? 1) === 1 ? 'pc' : 'pcs'; ?>
                                         </span>
                                     </td>
                                     <td class="px-6 py-3.5 text-brand-500 font-bold text-base">₱<?= number_format($v['price'], 2); ?></td>

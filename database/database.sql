@@ -41,6 +41,8 @@ CREATE TABLE `product_variants` (
   `product_id` INT NOT NULL,
   `variant_name` VARCHAR(100) NOT NULL,
   `quantity` INT NOT NULL DEFAULT 1,
+  `selling_unit` ENUM('piece', 'half_tray', 'tray', 'bundle') NOT NULL DEFAULT 'piece',
+  `pieces_per_unit` INT NOT NULL DEFAULT 1,
   `price` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,

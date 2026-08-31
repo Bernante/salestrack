@@ -57,7 +57,7 @@ try {
 
     $inClause = implode(',', array_fill(0, count($variantIds), '?'));
     $stmtPv = $db->prepare("
-        SELECT pv.id, pv.product_id, pv.variant_name, pv.price, pv.status AS variant_status,
+        SELECT pv.id, pv.product_id, pv.variant_name, pv.price, pv.selling_unit, pv.pieces_per_unit, pv.status AS variant_status,
                p.name AS product_name, p.status AS product_status
         FROM product_variants pv
         JOIN products p ON pv.product_id = p.id
@@ -75,9 +75,9 @@ try {
 
     foreach ($cartItems as $item) {
         $vid = intval($item['product_variant_id'] ?? 0);
-        $qty = intval($item['quantity'] ?? 0);
+        $qtyUnits = intval($item['quantity_units'] ?? 0);
 
-        if ($qty <= 0) {
+        if ($qtyUnits <= 0) {
             $_SESSION['flash_error'] = 'Quantity must be greater than zero.';
             header('Location: /staff/new-sale.php');
             exit;
@@ -97,14 +97,28 @@ try {
         }
 
         $unitPrice = floatval($vData['price']);
-        $subtotal = round($unitPrice * $qty, 2);
+        $piecesPerUnit = intval($vData['pieces_per_unit'] ?? 1);
+        $sellingUnit = trim($vData['selling_unit'] ?? 'piece');
+        
+        // Calculation based on selling unit
+        if ($sellingUnit === 'bundle') {
+            // For bundle: qtyUnits is pieces entered, must divide by piecesPerUnit to get number of bundles
+            // Formula: (pieces ÷ pieces_per_unit) × price_per_bundle
+            $subtotal = round(($qtyUnits / $piecesPerUnit) * $unitPrice, 2);
+        } else {
+            // For other units (piece, half_tray, tray): qtyUnits is quantity of that unit
+            // Formula: quantity × price
+            $subtotal = round($qtyUnits * $unitPrice, 2);
+        }
         $totalAmount += $subtotal;
 
         $calculatedItems[] = [
             'product_variant_id' => $vid,
             'product_name'       => $vData['product_name'],
             'variant_name'       => $vData['variant_name'],
-            'quantity'           => $qty,
+            'quantity_units'     => $qtyUnits,
+            'selling_unit'       => $sellingUnit,
+            'pieces_per_unit'    => $piecesPerUnit,
             'unit_price'         => $unitPrice,
             'subtotal'           => $subtotal
         ];
@@ -150,7 +164,7 @@ try {
         $stmtItem->execute([
             ':sale_id'  => $saleId,
             ':vid'      => $cItem['product_variant_id'],
-            ':qty'      => $cItem['quantity'],
+            ':qty'      => $cItem['quantity_units'],
             ':price'    => $cItem['unit_price'],
             ':subtotal' => $cItem['subtotal']
         ]);

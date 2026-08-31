@@ -1,6 +1,3 @@
-/**
- * SalesTrack - POS Sales Cart Manager & Product Cards UI
- */
 class SalesCartManager {
     constructor(productsData) {
         this.products = productsData || [];
@@ -9,210 +6,154 @@ class SalesCartManager {
         this.selectedVariant = null;
         this.init();
     }
-
     init() {
-        this.cartTable = document.getElementById('cartTableBody');
-        this.emptyRow = document.getElementById('emptyCartRow');
-        this.totalEl = document.getElementById('totalAmountDisplay');
-        this.paidInput = document.getElementById('amountPaidInput');
-        this.changeEl = document.getElementById('changeAmountDisplay');
-        this.completeBtn = document.getElementById('completeSaleBtn');
-        this.form = document.getElementById('saleForm');
-        this.cartInput = document.getElementById('cartItemsInput');
-        this.cartBadge = document.getElementById('cartCountBadge');
-        this.searchInput = document.getElementById('productSearchInput');
-
-        // Modal Elements
-        this.modal = document.getElementById('variantModal');
-        this.modalContent = document.getElementById('variantModalContent');
-        this.modalImg = document.getElementById('modalProductImg');
-        this.modalName = document.getElementById('modalProductName');
-        this.modalVariantList = document.getElementById('modalVariantList');
-        this.modalQtyInput = document.getElementById('modalQtyInput');
-        this.modalQtyMinus = document.getElementById('modalQtyMinus');
-        this.modalQtyPlus = document.getElementById('modalQtyPlus');
-        this.confirmAddBtn = document.getElementById('confirmAddToCartBtn');
-        this.closeModalBtn = document.getElementById('closeVariantModalBtn');
-        this.cancelModalBtn = document.getElementById('cancelVariantModalBtn');
-
+        this.cartTable = document.getElementById("cartTableBody");
+        this.emptyRow = document.getElementById("emptyCartRow");
+        this.totalEl = document.getElementById("totalAmountDisplay");
+        this.paidInput = document.getElementById("amountPaidInput");
+        this.changeEl = document.getElementById("changeAmountDisplay");
+        this.completeBtn = document.getElementById("completeSaleBtn");
+        this.form = document.getElementById("saleForm");
+        this.cartInput = document.getElementById("cartItemsInput");
+        this.modal = document.getElementById("variantModal");
+        this.modalVariantList = document.getElementById("modalVariantList");
+        this.modalQtyInput = document.getElementById("modalQtyInput");
+        this.confirmAddBtn = document.getElementById("confirmAddToCartBtn");
         this.bindEvents();
     }
-
     bindEvents() {
-        // Entire product card area is clickable
-        document.querySelectorAll('.product-card').forEach(card => {
-            card.addEventListener('click', (e) => {
+        document.querySelectorAll(".product-card").forEach(card => {
+            card.addEventListener("click", (e) => {
                 e.preventDefault();
-                const pid = parseInt(card.dataset.id);
-                this.openVariantModal(pid);
+                this.openVariantModal(parseInt(card.dataset.id));
             });
         });
-
-        if (this.searchInput) {
-            this.searchInput.addEventListener('input', (e) => {
-                const term = e.target.value.toLowerCase().trim();
-                document.querySelectorAll('.product-card').forEach(card => {
-                    const name = card.dataset.name.toLowerCase();
-                    card.style.display = name.includes(term) ? 'flex' : 'none';
-                });
-            });
-        }
-
-        if (this.closeModalBtn) this.closeModalBtn.addEventListener('click', () => this.closeVariantModal());
-        if (this.cancelModalBtn) this.cancelModalBtn.addEventListener('click', () => this.closeVariantModal());
-        if (this.modal) {
-            this.modal.addEventListener('click', (e) => {
-                if (e.target === this.modal) this.closeVariantModal();
-            });
-        }
-
-        if (this.modalQtyMinus) {
-            this.modalQtyMinus.addEventListener('click', () => {
-                let current = parseInt(this.modalQtyInput.value) || 1;
-                if (current > 1) this.modalQtyInput.value = current - 1;
-            });
-        }
-        if (this.modalQtyPlus) {
-            this.modalQtyPlus.addEventListener('click', () => {
-                let current = parseInt(this.modalQtyInput.value) || 1;
-                this.modalQtyInput.value = current + 1;
-            });
-        }
-
-        // Enter key on quantity input submits item to cart
-        if (this.modalQtyInput) {
-            this.modalQtyInput.addEventListener('keydown', (e) => {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    this.addSelectedToCart();
-                }
-            });
-        }
-
-        if (this.confirmAddBtn) {
-            this.confirmAddBtn.addEventListener('click', () => this.addSelectedToCart());
-        }
-
-        if (this.paidInput) this.paidInput.addEventListener('input', () => this.calcChange());
-        if (this.form) this.form.addEventListener('submit', (e) => this.submitSale(e));
-    }
-
-    openVariantModal(productId) {
-        const prod = this.products.find(p => p.id === productId);
-        if (!prod) return;
-
-        this.selectedProduct = prod;
-        this.selectedVariant = null;
-        if (this.modalImg) this.modalImg.src = prod.image;
-        if (this.modalName) this.modalName.textContent = prod.name;
-        if (this.modalQtyInput) this.modalQtyInput.value = 1;
-        if (this.modalVariantList) this.modalVariantList.innerHTML = '';
-
-        if (!prod.variants || prod.variants.length === 0) {
-            if (this.modalVariantList) {
-                this.modalVariantList.innerHTML = '<p class="text-xs text-red-500 font-semibold p-2">No active variants available.</p>';
+        this.confirmAddBtn?.addEventListener("click", (e) => { e.preventDefault(); this.addToCart(); });
+        this.paidInput?.addEventListener("input", () => this.calcChange());
+        this.form?.addEventListener("submit", (e) => this.submitSale(e));
+        document.getElementById("closeVariantModalBtn")?.addEventListener("click", () => this.closeVariantModal());
+        document.getElementById("cancelVariantModalBtn")?.addEventListener("click", () => this.closeVariantModal());
+        
+        // Quantity controls
+        document.getElementById("modalQtyMinus")?.addEventListener("click", (e) => {
+            e.preventDefault();
+            const input = this.modalQtyInput;
+            let val = parseInt(input.value) || 1;
+            if (val > 1) input.value = val - 1;
+        });
+        document.getElementById("modalQtyPlus")?.addEventListener("click", (e) => {
+            e.preventDefault();
+            const input = this.modalQtyInput;
+            let val = parseInt(input.value) || 1;
+            input.value = val + 1;
+        });
+        
+        // Close modal when clicking on the backdrop (outside the modal content)
+        this.modal?.addEventListener("click", (e) => {
+            if (e.target === this.modal) {
+                this.closeVariantModal();
             }
-            return;
+        });
+    }
+    openVariantModal(productId) {
+        this.selectedProduct = this.products.find(p => p.id === productId);
+        if (!this.selectedProduct) return;
+        this.selectedVariant = null;
+        this.modalQtyInput.value = "1";
+        this.modalVariantList.innerHTML = "";
+        
+        // Set product image and name in modal
+        const modalImg = document.getElementById("modalProductImg");
+        const modalName = document.getElementById("modalProductName");
+        if (modalImg) {
+            modalImg.src = this.selectedProduct.image || "/assets/images/placeholder.png";
+            modalImg.alt = this.selectedProduct.name;
+            modalImg.onerror = () => {
+                modalImg.src = "/assets/images/placeholder.png";
+            };
         }
-
-        prod.variants.forEach((v, idx) => {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            const isSelected = (idx === 0);
-            btn.className = `w-full px-4 py-3 border rounded-md text-left flex justify-between items-center transition cursor-pointer ${
-                isSelected 
-                    ? 'border-brand-500 bg-brand-50 font-bold text-brand-700 shadow-sm' 
-                    : 'border-brand-200 hover:border-brand-300 font-semibold text-brand-700'
-            }`;
-
-            btn.innerHTML = `
-                <span class="text-sm flex items-center gap-2">
-                    ${isSelected ? '<span class="w-2.5 h-2.5 rounded-full bg-brand-500 inline-block"></span>' : '<span class="w-2.5 h-2.5 rounded-full border border-brand-200 inline-block"></span>'}
-                    ${v.variant_name}
-                </span>
-                <span class="text-sm font-bold text-brand-500">₱${parseFloat(v.price).toFixed(2)}</span>
-            `;
-
-            btn.addEventListener('click', () => {
-                this.modalVariantList.querySelectorAll('button').forEach(b => {
-                    b.className = 'w-full px-4 py-3 border border-brand-200 hover:border-brand-300 rounded-md text-left flex justify-between items-center font-semibold text-brand-700 transition cursor-pointer';
-                    const dot = b.querySelector('.bg-brand-500');
-                    if (dot) {
-                        dot.className = 'w-2.5 h-2.5 rounded-full border border-brand-200 inline-block';
-                    }
-                });
-                btn.className = 'w-full px-4 py-3 border border-brand-500 bg-brand-50 rounded-md text-left flex justify-between items-center font-bold text-brand-700 transition cursor-pointer shadow-sm';
-                const dot = btn.querySelector('.rounded-full');
-                if (dot) {
-                    dot.className = 'w-2.5 h-2.5 rounded-full bg-brand-500 inline-block';
-                }
+        if (modalName) {
+            modalName.textContent = this.selectedProduct.name;
+        }
+        
+        this.selectedProduct.variants.forEach(v => {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "w-full px-4 py-2 text-left rounded-md border border-brand-200 font-semibold text-sm text-brand-700 variant-pill hover:bg-brand-50 transition-colors";
+            const ul = {half_tray:'Half Tray',tray:'Tray',bundle:'Bundle'}[v.selling_unit]||'Piece';
+            const pc = v.pieces_per_unit > 1 ? ` (${v.pieces_per_unit} pcs)` : '';
+            btn.textContent = `${v.variant_name} - ₱${v.price.toFixed(2)} / ${ul}${pc}`;
+            btn.addEventListener("click", (e) => {
+                e.preventDefault();
+                document.querySelectorAll(".variant-pill").forEach(p => p.classList.remove("bg-brand-500", "text-white"));
+                btn.classList.add("bg-brand-500", "text-white");
                 this.selectedVariant = v;
             });
-
             this.modalVariantList.appendChild(btn);
-            if (isSelected) this.selectedVariant = v;
         });
-
-        if (this.modal) {
-            this.modal.classList.remove('hidden');
-            setTimeout(() => {
-                if (this.modalContent) {
-                    this.modalContent.classList.remove('scale-95', 'opacity-0');
-                    this.modalContent.classList.add('scale-100', 'opacity-100');
-                }
-                if (this.modalQtyInput) {
-                    this.modalQtyInput.focus();
-                    this.modalQtyInput.select();
-                }
-            }, 50);
-        }
-    }
-
-    closeVariantModal() {
-        if (!this.modal) return;
-        this.modalContent.classList.remove('scale-100', 'opacity-100');
-        this.modalContent.classList.add('scale-95', 'opacity-0');
+        this.modal.classList.remove("hidden");
+        // Force reflow to trigger animation
         setTimeout(() => {
-            this.modal.classList.add('hidden');
-            this.selectedProduct = null;
-            this.selectedVariant = null;
+            const modalContent = document.getElementById("variantModalContent");
+            if (modalContent) {
+                modalContent.classList.remove("scale-95", "opacity-0");
+                modalContent.classList.add("scale-100", "opacity-100");
+            }
+        }, 10);
+    }
+    closeVariantModal() {
+        const modalContent = document.getElementById("variantModalContent");
+        if (modalContent) {
+            modalContent.classList.add("scale-95", "opacity-0");
+            modalContent.classList.remove("scale-100", "opacity-100");
+        }
+        setTimeout(() => {
+            this.modal.classList.add("hidden");
         }, 200);
     }
-
-    addSelectedToCart() {
-        if (!this.selectedProduct || !this.selectedVariant) {
-            alert('Please select a variant.');
-            return;
-        }
-
+    addToCart() {
+        if (!this.selectedVariant) { alert("Select variant"); return; }
         const qty = parseInt(this.modalQtyInput.value) || 1;
-        if (qty <= 0) {
-            alert('Quantity must be greater than zero.');
-            return;
-        }
-
-        const vid = this.selectedVariant.id;
-        const price = parseFloat(this.selectedVariant.price);
-        const item = this.cart.find(i => i.vid === vid);
-
-        if (item) {
-            item.qty += qty;
-            item.subtotal = item.qty * price;
+        if (qty < 1) { alert("Invalid qty"); return; }
+        
+        // Calculate subtotal based on selling unit
+        const unit = this.selectedVariant.selling_unit || 'piece';
+        const piecesPerUnit = this.selectedVariant.pieces_per_unit || 1;
+        const price = this.selectedVariant.price;
+        
+        // For bundle units: qty is pieces entered, must divide by pieces_per_unit to get number of bundles
+        // For other units (piece, half_tray, tray): qty is the quantity of that unit, price is per that unit
+        let subtotal;
+        if (unit === 'bundle') {
+            subtotal = (qty / piecesPerUnit) * price;
         } else {
-            this.cart.push({
-                vid,
-                pName: this.selectedProduct.name,
-                vName: this.selectedVariant.variant_name,
-                price,
-                qty,
-                subtotal: qty * price
-            });
+            subtotal = qty * price;
         }
-
+        
+        const item = {
+            vid: this.selectedVariant.id,
+            pName: this.selectedProduct.name,
+            vName: this.selectedVariant.variant_name,
+            price: price,
+            unit: unit,
+            pieces: piecesPerUnit,
+            qty: qty,
+            subtotal: subtotal
+        };
+        const existing = this.cart.find(i => i.vid === item.vid);
+        if (existing) { 
+            existing.qty += item.qty;
+            // Recalculate subtotal for existing item
+            if (existing.unit === 'bundle') {
+                existing.subtotal = (existing.qty / existing.pieces) * existing.price;
+            } else {
+                existing.subtotal = existing.qty * existing.price;
+            }
+        }
+        else { this.cart.push(item); }
         this.closeVariantModal();
         this.render();
     }
-
     removeFromCart(vid) {
         this.cart = this.cart.filter(i => i.vid !== vid);
         this.render();
@@ -220,78 +161,51 @@ class SalesCartManager {
 
     render() {
         if (!this.cartTable) return;
-        this.cartTable.innerHTML = '';
-
-        const totalItemsCount = this.cart.reduce((sum, i) => sum + i.qty, 0);
-        if (this.cartBadge) {
-            this.cartBadge.textContent = `${totalItemsCount} item${totalItemsCount === 1 ? '' : 's'}`;
-        }
-
+        this.cartTable.innerHTML = "";
         if (this.cart.length === 0) {
             this.cartTable.appendChild(this.emptyRow);
-            this.totalEl.textContent = '₱0.00';
+            this.totalEl.textContent = "₱0.00";
             this.calcChange();
             if (this.completeBtn) this.completeBtn.disabled = true;
             return;
         }
-
         let total = 0;
         this.cart.forEach(item => {
             total += item.subtotal;
-            const tr = document.createElement('tr');
-            tr.className = 'border-b border-brand-100 text-xs sm:text-sm hover:bg-brand-50 transition-colors';
-            tr.innerHTML = `
-                <td class="p-2 sm:p-2.5 font-bold text-brand-700">
-                    <div>${item.pName}</div>
-                    <div class="text-[11px] font-normal text-brand-300">${item.vName}</div>
-                </td>
-                <td class="p-2 sm:p-2.5 font-semibold text-brand-700">${item.qty}</td>
-                <td class="p-2 sm:p-2.5 text-brand-300">₱${item.price.toFixed(2)}</td>
-                <td class="p-2 sm:p-2.5 font-bold text-brand-500">₱${item.subtotal.toFixed(2)}</td>
-                <td class="p-2 sm:p-2.5 text-right">
-                    <button type="button" onclick="cartManager.removeFromCart(${item.vid})" class="w-6 h-6 rounded-full bg-red-50 hover:bg-red-100 text-red-500 font-bold flex items-center justify-center text-xs ml-auto transition-colors">&times;</button>
-                </td>
-            `;
+            const ul = {half_tray:'Half Tray',tray:'Tray',bundle:'Bundle'}[item.unit]||'Piece';
+            const pc = item.pieces > 1 ? ` (${item.pieces} pcs)` : '';
+            
+            // Display quantity: for bundle show "X pieces", otherwise show quantity of unit
+            let qtyDisplay;
+            if (item.unit === 'bundle') {
+                qtyDisplay = `${item.qty}`;
+            } else {
+                qtyDisplay = `${item.qty}`;
+            }
+            
+            const tr = document.createElement("tr");
+            tr.className = "border-b border-brand-100 text-xs sm:text-sm hover:bg-brand-50";
+            tr.innerHTML = `<td class="p-2 font-bold text-brand-700"><div>${item.pName}</div><div class="text-[11px] text-brand-300">${item.vName}</div></td><td class="p-2 font-semibold text-center">${qtyDisplay}</td><td class="p-2 text-brand-300">₱${item.price.toFixed(2)}/${ul}${pc}</td><td class="p-2 font-bold text-brand-500">₱${item.subtotal.toFixed(2)}</td><td class="p-2 text-right"><button type="button" onclick="cartManager.removeFromCart(${item.vid})" class="w-6 h-6 rounded-full bg-red-50 text-red-500 font-bold text-xs">&times;</button></td>`;
             this.cartTable.appendChild(tr);
         });
-
         this.totalEl.textContent = `₱${total.toFixed(2)}`;
         this.calcChange();
         if (this.completeBtn) this.completeBtn.disabled = false;
     }
-
     calcChange() {
-        const total = this.cart.reduce((sum, i) => sum + i.subtotal, 0);
-        const paid = parseFloat(this.paidInput ? this.paidInput.value : 0) || 0;
+        const total = this.cart.reduce((s, i) => s + i.subtotal, 0);
+        const paid = parseFloat(this.paidInput?.value || 0) || 0;
         const change = paid - total;
         if (this.changeEl) {
-            if (change < 0 || this.cart.length === 0) {
-                this.changeEl.textContent = '₱0.00';
-                this.changeEl.className = 'text-2xl font-bold text-brand-300 py-1.5 px-2 bg-white rounded-md border border-brand-200';
-            } else {
-                this.changeEl.textContent = `₱${change.toFixed(2)}`;
-                this.changeEl.className = 'text-2xl font-bold text-green-600 py-1.5 px-2 bg-green-50 rounded-md border border-green-200';
-            }
+            this.changeEl.textContent = change < 0 || this.cart.length === 0 ? "₱0.00" : `₱${change.toFixed(2)}`;
+            this.changeEl.className = change < 0 || this.cart.length === 0 ? "text-2xl font-bold text-brand-300 py-1.5 px-2 bg-white rounded-md border border-brand-200" : "text-2xl font-bold text-green-600 py-1.5 px-2 bg-green-50 rounded-md border border-green-200";
         }
     }
-
     submitSale(e) {
-        if (this.cart.length === 0) {
-            e.preventDefault();
-            alert('Your cart is empty.');
-            return;
-        }
-
-        const total = this.cart.reduce((sum, i) => sum + i.subtotal, 0);
-        const paid = parseFloat(this.paidInput ? this.paidInput.value : 0) || 0;
-
-        if (paid < total) {
-            e.preventDefault();
-            alert(`Amount paid is insufficient. Total is ₱${total.toFixed(2)}.`);
-            return;
-        }
-
-        const payload = this.cart.map(i => ({ product_variant_id: i.vid, quantity: i.qty }));
-        this.cartInput.value = JSON.stringify(payload);
+        if (this.cart.length === 0) { e.preventDefault(); alert("Cart is empty"); return; }
+        const total = this.cart.reduce((s, i) => s + i.subtotal, 0);
+        const paid = parseFloat(this.paidInput?.value || 0) || 0;
+        if (paid < total) { e.preventDefault(); alert(`Insufficient. Total: ₱${total.toFixed(2)}`); return; }
+        this.cartInput.value = JSON.stringify(this.cart.map(i => ({ product_variant_id: i.vid, quantity_units: i.qty, selling_unit: i.unit, pieces_per_unit: i.pieces })));
     }
 }
