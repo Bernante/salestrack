@@ -1,14 +1,48 @@
-# Config / Secrets
-config/config.local.php
+# Local Development
 config/database.local.php
+config/config.local.php
 .env
+.env.local
+*.local.php
 
-# OS / Temporary Files
+# Documentation (not needed in production)
+*.md
+!README.md
+
+# Deployment Scripts (local use only)
+deploy*.php
+auto-deploy.php
+backup-production-db.php
+verify-deployment.php
+
+# Documentation Files
+DEPLOY*.md
+FINAL*.md
+DATABASE*.md
+DEPLOYMENT*.md
+PHPMYADMIN*.md
+memory.md
+
+# Archives
+*.zip
+*.tar.gz
+
+# OS Files
 .DS_Store
 Thumbs.db
-*.log
-*.tmp
 
-# IDE / Editor
+# Node (if ever used)
+node_modules/
+package-lock.json
+
+# IDE
 .vscode/
 .idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+*.tmp
+error_log
+access_log
