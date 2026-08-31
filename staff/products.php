@@ -5,7 +5,7 @@ require_once __DIR__ . '/../includes/staff-auth.php';
 $db = getDBConnection();
 $rows = $db->query('
     SELECT p.id AS product_id, p.name AS product_name, p.image AS product_image, p.status AS product_status,
-           pv.id AS variant_id, pv.variant_name, pv.item_quantity, pv.price, pv.status AS variant_status
+           pv.id AS variant_id, pv.variant_name, pv.quantity, pv.price, pv.status AS variant_status
     FROM products p
     LEFT JOIN product_variants pv ON p.id = pv.product_id
     ORDER BY p.id ASC, pv.id ASC
@@ -25,11 +25,11 @@ foreach ($rows as $row) {
     }
     if ($row['variant_id']) {
         $products[$pid]['variants'][] = [
-            'id'            => $row['variant_id'],
-            'name'          => $row['variant_name'],
-            'item_quantity' => $row['item_quantity'] ?? 1,
-            'price'         => $row['price'],
-            'status'        => $row['variant_status']
+            'id'       => $row['variant_id'],
+            'name'     => $row['variant_name'],
+            'quantity' => intval($row['quantity'] ?? 1),
+            'price'    => $row['price'],
+            'status'   => $row['variant_status']
         ];
     }
 }

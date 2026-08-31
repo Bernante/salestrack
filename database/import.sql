@@ -87,7 +87,7 @@ INSERT INTO `products` (`id`, `name`, `status`) VALUES
 (2, 'Ice', 'active');
 
 -- Initial Product Variants
-INSERT INTO `product_variants` (`id`, `product_id`, `variant_name`, `item_quantity`, `price`, `status`) VALUES
+INSERT INTO `product_variants` (`id`, `product_id`, `variant_name`, `quantity`, `price`, `status`) VALUES
 (1, 1, 'Small', 1, 7.00, 'active'),
 (2, 1, 'Medium', 1, 8.00, 'active'),
 (3, 1, 'Large', 1, 9.00, 'active'),
