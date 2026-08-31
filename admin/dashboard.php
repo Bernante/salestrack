@@ -20,7 +20,10 @@ $stmtVariant = $db->query('
 $variantBreakdown = $stmtVariant->fetchAll();
 
 $recentSales = $db->query('
-    SELECT s.*, u.name AS staff_name FROM sales s JOIN users u ON s.user_id = u.id ORDER BY s.created_at DESC LIMIT 6
+    SELECT s.id, s.transaction_number, s.user_id, s.sale_date, s.total_amount, s.amount_paid, s.change_amount, s.payment_status, s.status, s.created_at, u.name AS staff_name 
+    FROM sales s 
+    JOIN users u ON s.user_id = u.id 
+    ORDER BY s.created_at DESC LIMIT 6
 ')->fetchAll();
 
 include __DIR__ . '/../includes/header.php';
@@ -68,7 +71,7 @@ include __DIR__ . '/../includes/header.php';
             <div class="w-full p-6">
                 <div class="overflow-x-auto">
                     <table class="w-full text-left text-sm min-w-[500px]">
-                        <thead><tr class="border-b border-brand-200"><th class="px-4 py-3 text-sm font-semibold text-brand-300">Txn #</th><th class="px-4 py-3 text-sm font-semibold text-brand-300">Staff</th><th class="px-4 py-3 text-sm font-semibold text-brand-300">Total Amount</th><th class="px-4 py-3 text-sm font-semibold text-brand-300">Time</th><th class="px-4 py-3 text-sm font-semibold text-brand-300 text-right">Receipt</th></tr></thead>
+                        <thead><tr class="border-b border-brand-200"><th class="px-4 py-3 text-sm font-semibold text-brand-300">Txn #</th><th class="px-4 py-3 text-sm font-semibold text-brand-300">Staff</th><th class="px-4 py-3 text-sm font-semibold text-brand-300">Total Amount</th><th class="px-4 py-3 text-sm font-semibold text-brand-300">Sale Date</th><th class="px-4 py-3 text-sm font-semibold text-brand-300 text-right">Receipt</th></tr></thead>
                         <tbody>
                             <?php if (empty($recentSales)): ?>
                                 <tr><td colspan="5" class="px-4 py-8 text-center text-sm text-brand-300 italic">No sales recorded yet today.</td></tr>
@@ -78,7 +81,7 @@ include __DIR__ . '/../includes/header.php';
                                         <td class="px-4 py-3 font-semibold text-brand-700 font-mono text-sm"><?= e($rs['transaction_number']); ?></td>
                                         <td class="px-4 py-3 text-sm text-brand-700"><?= e($rs['staff_name']); ?></td>
                                         <td class="px-4 py-3 font-bold text-brand-500 text-sm">₱<?= number_format($rs['total_amount'], 2); ?></td>
-                                        <td class="px-4 py-3 text-sm text-brand-300"><?= date('h:i A', strtotime($rs['created_at'])); ?></td>
+                                        <td class="px-4 py-3 text-sm text-brand-300"><?= date('F d, Y', strtotime($rs['sale_date'])); ?></td>
                                         <td class="px-4 py-3 text-right"><a href="/admin/sale-details.php?id=<?= $rs['id']; ?>" class="inline-flex items-center px-3 py-1 bg-brand-100 hover:bg-brand-200 text-brand-500 rounded-sm text-sm font-semibold transition-colors">Details</a></td>
                                     </tr>
                                 <?php endforeach; ?>
