@@ -6,7 +6,7 @@ require_once __DIR__ . '/../includes/csrf.php';
 $db = getDBConnection();
 $rows = $db->query('
     SELECT p.id AS product_id, p.name AS product_name, p.image AS product_image,
-           pv.id AS variant_id, pv.variant_name, pv.price, pv.status AS variant_status
+           pv.id AS variant_id, pv.variant_name, COALESCE(pv.quantity, 1) AS quantity, pv.price, pv.status AS variant_status
     FROM products p JOIN product_variants pv ON p.id = pv.product_id
     WHERE p.status = "active" AND pv.status = "active"
     ORDER BY p.name ASC, pv.price ASC
@@ -26,6 +26,7 @@ foreach ($rows as $r) {
     $productsMap[$pid]['variants'][] = [
         'id'           => $r['variant_id'],
         'variant_name' => $r['variant_name'],
+        'quantity'     => intval($r['quantity'] ?? 1),
         'price'        => floatval($r['price']),
         'status'       => $r['variant_status']
     ];

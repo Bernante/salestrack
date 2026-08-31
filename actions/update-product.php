@@ -69,21 +69,23 @@ try {
     }
 
     // 2. Update Existing Variants
-    $existingVariants = $_POST['existing_variants'] ?? []; // array of id => ['name' => ..., 'price' => ..., 'status' => ...]
+    $existingVariants = $_POST['existing_variants'] ?? []; // array of id => ['name' => ..., 'quantity' => ..., 'price' => ..., 'status' => ...]
     if (is_array($existingVariants)) {
-        $stmtUpdateVariant = $db->prepare('UPDATE product_variants SET variant_name = :vname, price = :price, status = :vstatus WHERE id = :vid AND product_id = :pid');
+        $stmtUpdateVariant = $db->prepare('UPDATE product_variants SET variant_name = :vname, quantity = :quantity, price = :price, status = :vstatus WHERE id = :vid AND product_id = :pid');
         foreach ($existingVariants as $vid => $vData) {
             $vName = trim($vData['name'] ?? '');
+            $vQty = max(1, intval($vData['quantity'] ?? $vData['item_quantity'] ?? $vData['qty'] ?? 1));
             $vPrice = max(0, floatval($vData['price'] ?? 0));
             $vStatus = ($vData['status'] ?? 'active') === 'active' ? 'active' : 'inactive';
 
             if (!empty($vName)) {
                 $stmtUpdateVariant->execute([
-                    ':vname'   => $vName,
-                    ':price'   => $vPrice,
-                    ':vstatus' => $vStatus,
-                    ':vid'     => intval($vid),
-                    ':pid'     => $productId
+                    ':vname'    => $vName,
+                    ':quantity' => $vQty,
+                    ':price'    => $vPrice,
+                    ':vstatus'  => $vStatus,
+                    ':vid'      => intval($vid),
+                    ':pid'      => $productId
                 ]);
             }
         }
@@ -91,19 +93,22 @@ try {
 
     // 3. Insert New Variants if provided
     $newVariantNames = $_POST['new_variant_name'] ?? [];
+    $newVariantQuantities = $_POST['new_variant_quantity'] ?? $_POST['new_item_quantity'] ?? [];
     $newVariantPrices = $_POST['new_variant_price'] ?? [];
 
     if (is_array($newVariantNames)) {
-        $stmtInsertVariant = $db->prepare('INSERT INTO product_variants (product_id, variant_name, price, status) VALUES (:pid, :vname, :price, "active")');
+        $stmtInsertVariant = $db->prepare('INSERT INTO product_variants (product_id, variant_name, quantity, price, status) VALUES (:pid, :vname, :quantity, :price, "active")');
         foreach ($newVariantNames as $idx => $nName) {
             $nNameClean = trim($nName);
             if (empty($nNameClean)) continue;
+            $nQty = max(1, intval($newVariantQuantities[$idx] ?? 1));
             $nPrice = max(0, floatval($newVariantPrices[$idx] ?? 0));
 
             $stmtInsertVariant->execute([
-                ':pid'   => $productId,
-                ':vname' => $nNameClean,
-                ':price' => $nPrice
+                ':pid'      => $productId,
+                ':vname'    => $nNameClean,
+                ':quantity' => $nQty,
+                ':price'    => $nPrice
             ]);
         }
     }

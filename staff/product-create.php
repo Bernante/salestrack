@@ -40,18 +40,30 @@ include __DIR__ . '/../includes/header.php';
 
         <div>
             <div class="flex items-center justify-between mb-3">
-                <label class="block text-sm font-semibold text-brand-700">Product Variants & Prices *</label>
+                <label class="block text-sm font-semibold text-brand-700">Product Variants, Quantity & Prices *</label>
                 <button type="button" id="addVariantRowBtn" class="text-sm font-semibold text-brand-500 hover:text-brand-600 transition-colors">+ Add Another Variant</button>
             </div>
 
             <div id="variantsContainer" class="space-y-3">
-                <div class="flex items-center gap-3 variant-row">
-                    <input type="text" name="variant_name[]" placeholder="Variant Name (e.g. Default, Small, 500g)" required class="flex-1 px-4 py-2 rounded-md border border-brand-200 text-sm text-brand-700 focus:outline-none focus:border-brand-500">
-                    <div class="relative w-36">
-                        <span class="absolute left-3 top-2 text-brand-300 text-sm">₱</span>
-                        <input type="number" step="0.01" min="0" name="variant_price[]" placeholder="0.00" required class="w-full pl-7 pr-3 py-2 rounded-md border border-brand-200 text-sm text-brand-700 focus:outline-none focus:border-brand-500">
+                <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center variant-row bg-brand-50 p-3 rounded-md border border-brand-200">
+                    <div class="sm:col-span-5">
+                        <label class="block text-xs font-semibold text-brand-700 mb-1">Product Variant *</label>
+                        <input type="text" name="variant_name[]" placeholder="Variant Name (e.g. Small, Small Tray, Bulk)" required class="w-full px-3.5 py-2 rounded-md border border-brand-200 text-sm text-brand-700 focus:outline-none focus:border-brand-500">
                     </div>
-                    <button type="button" class="remove-variant-btn text-red-500 hover:text-red-700 text-sm p-1" style="display:none;">&times;</button>
+                    <div class="sm:col-span-3">
+                        <label class="block text-xs font-semibold text-brand-700 mb-1">Selling Qty (pcs) *</label>
+                        <input type="number" min="1" step="1" name="item_quantity[]" value="1" placeholder="Qty (e.g. 1, 30)" required class="w-full px-3.5 py-2 rounded-md border border-brand-200 text-sm text-brand-700 focus:outline-none focus:border-brand-500">
+                    </div>
+                    <div class="sm:col-span-3">
+                        <label class="block text-xs font-semibold text-brand-700 mb-1">Price (₱) *</label>
+                        <div class="relative">
+                            <span class="absolute left-3 top-2 text-brand-300 text-sm">₱</span>
+                            <input type="number" step="0.01" min="0" name="variant_price[]" placeholder="0.00" required class="w-full pl-7 pr-3 py-2 rounded-md border border-brand-200 text-sm text-brand-700 focus:outline-none focus:border-brand-500">
+                        </div>
+                    </div>
+                    <div class="sm:col-span-1 text-right sm:text-center pt-2 sm:pt-4">
+                        <button type="button" class="remove-variant-btn text-red-500 hover:text-red-700 text-lg font-bold p-1" style="display:none;" title="Remove Variant">&times;</button>
+                    </div>
                 </div>
             </div>
         </div>

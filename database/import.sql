@@ -36,6 +36,7 @@ CREATE TABLE `product_variants` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `product_id` INT NOT NULL,
   `variant_name` VARCHAR(100) NOT NULL,
+  `item_quantity` INT NOT NULL DEFAULT 1,
   `price` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -86,8 +87,8 @@ INSERT INTO `products` (`id`, `name`, `status`) VALUES
 (2, 'Ice', 'active');
 
 -- Initial Product Variants
-INSERT INTO `product_variants` (`id`, `product_id`, `variant_name`, `price`, `status`) VALUES
-(1, 1, 'Small', 7.00, 'active'),
-(2, 1, 'Medium', 8.00, 'active'),
-(3, 1, 'Large', 9.00, 'active'),
-(4, 2, 'Default', 20.00, 'active');
+INSERT INTO `product_variants` (`id`, `product_id`, `variant_name`, `item_quantity`, `price`, `status`) VALUES
+(1, 1, 'Small', 1, 7.00, 'active'),
+(2, 1, 'Medium', 1, 8.00, 'active'),
+(3, 1, 'Large', 1, 9.00, 'active'),
+(4, 2, 'Default', 1, 20.00, 'active');

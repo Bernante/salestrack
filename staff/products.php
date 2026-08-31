@@ -5,7 +5,7 @@ require_once __DIR__ . '/../includes/staff-auth.php';
 $db = getDBConnection();
 $rows = $db->query('
     SELECT p.id AS product_id, p.name AS product_name, p.image AS product_image, p.status AS product_status,
-           pv.id AS variant_id, pv.variant_name, pv.price, pv.status AS variant_status
+           pv.id AS variant_id, pv.variant_name, pv.item_quantity, pv.price, pv.status AS variant_status
     FROM products p
     LEFT JOIN product_variants pv ON p.id = pv.product_id
     ORDER BY p.id ASC, pv.id ASC
@@ -24,7 +24,13 @@ foreach ($rows as $row) {
         ];
     }
     if ($row['variant_id']) {
-        $products[$pid]['variants'][] = ['id' => $row['variant_id'], 'name' => $row['variant_name'], 'price' => $row['price'], 'status' => $row['variant_status']];
+        $products[$pid]['variants'][] = [
+            'id'            => $row['variant_id'],
+            'name'          => $row['variant_name'],
+            'item_quantity' => $row['item_quantity'] ?? 1,
+            'price'         => $row['price'],
+            'status'        => $row['variant_status']
+        ];
     }
 }
 include __DIR__ . '/../includes/header.php';
@@ -48,7 +54,8 @@ include __DIR__ . '/../includes/header.php';
                         <th class="px-6 py-3.5 text-sm font-semibold text-brand-300">Photo</th>
                         <th class="px-6 py-3.5 text-sm font-semibold text-brand-300">Product Name</th>
                         <th class="px-6 py-3.5 text-sm font-semibold text-brand-300">Variant Name</th>
-                        <th class="px-6 py-3.5 text-sm font-semibold text-brand-300">Unit Price (₱)</th>
+                        <th class="px-6 py-3.5 text-sm font-semibold text-brand-300">Quantity</th>
+                        <th class="px-6 py-3.5 text-sm font-semibold text-brand-300">Price (₱)</th>
                         <th class="px-6 py-3.5 text-sm font-semibold text-brand-300">Variant Status</th>
                         <th class="px-6 py-3.5 text-sm font-semibold text-brand-300 text-right">Action</th>
                     </tr>
@@ -83,6 +90,11 @@ include __DIR__ . '/../includes/header.php';
                                         </td>
                                     <?php endif; ?>
                                     <td class="px-6 py-3.5 font-semibold text-brand-700"><?= e($v['name']); ?></td>
+                                    <td class="px-6 py-3.5 text-brand-700 font-medium">
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold bg-brand-100 text-brand-700 border border-brand-200">
+                                            <?= intval($v['item_quantity']); ?> <?= intval($v['item_quantity']) === 1 ? 'pc' : 'pcs'; ?>
+                                        </span>
+                                    </td>
                                     <td class="px-6 py-3.5 text-brand-500 font-bold text-base">₱<?= number_format($v['price'], 2); ?></td>
                                     <td class="px-6 py-3.5">
                                         <span class="px-2.5 py-0.5 rounded-md text-xs font-semibold uppercase tracking-wider <?= $v['status'] === 'active' ? 'bg-green-50 text-green-600 border border-green-200' : 'bg-red-50 text-red-600 border border-red-200'; ?>">
