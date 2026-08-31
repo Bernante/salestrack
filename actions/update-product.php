@@ -1,16 +1,20 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/admin-auth.php';
+require_once __DIR__ . '/../includes/staff-auth.php';
 require_once __DIR__ . '/../includes/csrf.php';
 
+$userRole = $_SESSION['user_role'] ?? 'staff';
+$productsUrl = ($userRole === 'admin') ? '/admin/products.php' : '/staff/products.php';
+$editUrlBase = ($userRole === 'admin') ? '/admin/product-edit.php' : '/staff/product-edit.php';
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: /admin/products.php');
+    header('Location: ' . $productsUrl);
     exit;
 }
 
 if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
     $_SESSION['flash_error'] = 'Invalid request token.';
-    header('Location: /admin/products.php');
+    header('Location: ' . $productsUrl);
     exit;
 }
 
@@ -20,7 +24,7 @@ $productStatus = ($_POST['status'] ?? 'active') === 'active' ? 'active' : 'inact
 
 if ($productId <= 0 || empty($productName)) {
     $_SESSION['flash_error'] = 'Invalid product data.';
-    header('Location: /admin/products.php');
+    header('Location: ' . $productsUrl);
     exit;
 }
 
@@ -106,7 +110,7 @@ try {
 
     $db->commit();
     $_SESSION['flash_success'] = 'Product and variants updated successfully!';
-    header('Location: /admin/products.php');
+    header('Location: ' . $productsUrl);
     exit;
 
 } catch (Exception $e) {
@@ -115,6 +119,6 @@ try {
     }
     error_log('Update Product Error: ' . $e->getMessage());
     $_SESSION['flash_error'] = $e->getMessage() ?: 'Failed to update product. Please try again.';
-    header('Location: /admin/product-edit.php?id=' . $productId);
+    header('Location: ' . $editUrlBase . '?id=' . $productId);
     exit;
 }

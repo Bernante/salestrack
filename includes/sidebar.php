@@ -9,6 +9,7 @@ if (!function_exists('isActiveNav')) {
             elseif ($uri === '/staff/sales.php' && str_contains($currentUri, '/staff/sale-details.php')) $isActive = true;
             elseif ($uri === '/admin/products.php' && (str_contains($currentUri, '/admin/product-create.php') || str_contains($currentUri, '/admin/product-edit.php'))) $isActive = true;
             elseif ($uri === '/admin/staff.php' && (str_contains($currentUri, '/admin/staff-create.php') || str_contains($currentUri, '/admin/staff-edit.php'))) $isActive = true;
+            elseif ($uri === '/staff/products.php' && (str_contains($currentUri, '/staff/product-create.php') || str_contains($currentUri, '/staff/product-edit.php'))) $isActive = true;
         }
         return $isActive;
     }
@@ -35,6 +36,7 @@ $navCls = fn(string $uri) => isActiveNav($uri, $currentUri) ? 'active' : 'text-b
                 <li class="w-full py-3 relative"><a href="/staff/dashboard.php" class="nav-item flex items-center text-base font-semibold capitalize transition-colors duration-300 <?= $navCls('/staff/dashboard.php'); ?>"><i class="fas fa-home w-6"></i><span class="ml-1">Dashboard</span></a></li>
                 <li class="w-full py-3 relative"><a href="/staff/new-sale.php" class="nav-item flex items-center text-base font-semibold capitalize transition-colors duration-300 <?= $navCls('/staff/new-sale.php'); ?>"><i class="fas fa-cash-register w-6"></i><span class="ml-1">Record New Sale</span></a></li>
                 <li class="w-full py-3 relative"><a href="/staff/sales.php" class="nav-item flex items-center text-base font-semibold capitalize transition-colors duration-300 <?= $navCls('/staff/sales.php'); ?>"><i class="fas fa-clipboard-list w-6"></i><span class="ml-1">My Sales History</span></a></li>
+                <li class="w-full py-3 relative"><a href="/staff/products.php" class="nav-item flex items-center text-base font-semibold capitalize transition-colors duration-300 <?= $navCls('/staff/products.php'); ?>"><i class="fas fa-box w-6"></i><span class="ml-1">Products & Prices</span></a></li>
             <?php endif; ?>
         </ul>
         <div class="mt-auto pt-6 pb-8">

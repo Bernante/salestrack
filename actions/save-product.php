@@ -1,16 +1,20 @@
 <?php
 require_once __DIR__ . '/../config/database.php';
-require_once __DIR__ . '/../includes/admin-auth.php';
+require_once __DIR__ . '/../includes/staff-auth.php';
 require_once __DIR__ . '/../includes/csrf.php';
 
+$userRole = $_SESSION['user_role'] ?? 'staff';
+$productsUrl = ($userRole === 'admin') ? '/admin/products.php' : '/staff/products.php';
+$createUrl = ($userRole === 'admin') ? '/admin/product-create.php' : '/staff/product-create.php';
+
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: /admin/products.php');
+    header('Location: ' . $productsUrl);
     exit;
 }
 
 if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
     $_SESSION['flash_error'] = 'Invalid request token.';
-    header('Location: /admin/products.php');
+    header('Location: ' . $productsUrl);
     exit;
 }
 
@@ -20,13 +24,13 @@ $variantPrices = $_POST['variant_price'] ?? [];
 
 if (empty($productName)) {
     $_SESSION['flash_error'] = 'Product name is required.';
-    header('Location: /admin/product-create.php');
+    header('Location: ' . $createUrl);
     exit;
 }
 
 if (empty($variantNames) || !is_array($variantNames)) {
     $_SESSION['flash_error'] = 'At least one variant is required.';
-    header('Location: /admin/product-create.php');
+    header('Location: ' . $createUrl);
     exit;
 }
 
@@ -70,7 +74,7 @@ try {
 
     $db->commit();
     $_SESSION['flash_success'] = 'Product and variants saved successfully!';
-    header('Location: /admin/products.php');
+    header('Location: ' . $productsUrl);
     exit;
 
 } catch (Exception $e) {
@@ -79,6 +83,6 @@ try {
     }
     error_log('Save Product Error: ' . $e->getMessage());
     $_SESSION['flash_error'] = $e->getMessage() ?: 'Failed to create product. Please try again.';
-    header('Location: /admin/product-create.php');
+    header('Location: ' . $createUrl);
     exit;
 }
