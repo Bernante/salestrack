@@ -64,3 +64,13 @@ c:\inventory\
 ## 5. Status Update: Order Cancellation Security Updated
 - System tested and ready for production deployment.
 
+## 6. Git & Deployment Rule
+- **CRITICAL DEPLOYMENT / GIT RULE**: Do NOT automatically push or commit code changes to GitHub (`git commit`, `git push`). The user strictly wants to manually execute `git add .`, `git commit -m "..."`, and `git push origin main` themselves whenever changes are made.
+
+---
+
+## 7. Staff Product & Price Management Access
+- **Staff Access**: Staff accounts have access to Product & Price Management (`/staff/products.php`, `/staff/product-create.php`, `/staff/product-edit.php`).
+- **Feature Parity**: Staff product pages share identical layout, design, photo upload, variant, and pricing capabilities with Admin product pages.
+- **Backend Handlers**: Shared actions (`actions/save-product.php` & `actions/update-product.php`) use `staff-auth.php` (permitting both staff and admin) and dynamically redirect to their respective user role directories.
+
