@@ -36,7 +36,7 @@ CREATE TABLE `product_variants` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `product_id` INT NOT NULL,
   `variant_name` VARCHAR(100) NOT NULL,
-  `item_quantity` INT NOT NULL DEFAULT 1,
+  `quantity` INT NOT NULL DEFAULT 1,
   `price` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,

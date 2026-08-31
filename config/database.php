@@ -20,6 +20,38 @@ if (!defined('DB_PASS')) define('DB_PASS', getenv('DB_PASS') !== false ? getenv(
 if (!defined('DB_CHARSET')) define('DB_CHARSET', 'utf8mb4');
 
 /**
+ * Auto-runs database migrations to ensure schema is up-to-date
+ * This handles renaming item_quantity to quantity in product_variants table
+ * 
+ * @param PDO $pdo
+ * @return void
+ */
+function runDatabaseMigrations($pdo) {
+    try {
+        // Check if migration has already been run (using a flag file or check the schema)
+        $columns = $pdo->query("SHOW COLUMNS FROM product_variants")->fetchAll(PDO::FETCH_ASSOC);
+        $columnNames = array_column($columns, 'Field');
+        
+        $hasQuantity = in_array('quantity', $columnNames);
+        $hasItemQuantity = in_array('item_quantity', $columnNames);
+        
+        // If both exist or neither exist in a weird state, handle it
+        if ($hasQuantity && $hasItemQuantity) {
+            // Both exist - drop the old one
+            $pdo->exec("ALTER TABLE product_variants DROP COLUMN item_quantity");
+        } elseif ($hasItemQuantity && !$hasQuantity) {
+            // Only old column exists - rename it
+            $pdo->exec("ALTER TABLE product_variants CHANGE COLUMN item_quantity quantity INT NOT NULL DEFAULT 1");
+        }
+        // If only new column exists or neither exists, do nothing (schema is correct or will be created fresh)
+        
+    } catch (Exception $e) {
+        // Silently fail - the table may not exist yet on fresh installations
+        error_log('Database Migration Notice: ' . $e->getMessage());
+    }
+}
+
+/**
  * Returns a Singleton PDO Database Connection Instance
  * 
  * @return PDO
@@ -45,6 +77,10 @@ function getDBConnection(): PDO {
 
         try {
             $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+            
+            // Run any pending migrations
+            runDatabaseMigrations($pdo);
+            
         } catch (PDOException $e) {
             error_log('Database Connection Error: ' . $e->getMessage());
             throw new Exception('Database connection failed: ' . $e->getMessage());
