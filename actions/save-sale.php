@@ -16,7 +16,23 @@ if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
 
 $rawCartItems = $_POST['cart_items'] ?? '';
 $amountPaidInput = floatval($_POST['amount_paid'] ?? 0);
+$saleDate = $_POST['sale_date'] ?? date('Y-m-d');
 $userId = $_SESSION['user_id'];
+
+// Validate sale date format
+if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $saleDate)) {
+    $_SESSION['flash_error'] = 'Invalid sale date format.';
+    header('Location: /staff/new-sale.php');
+    exit;
+}
+
+// Validate sale date is not in the future
+$today = date('Y-m-d');
+if ($saleDate > $today) {
+    $_SESSION['flash_error'] = 'Sale date cannot be in the future.';
+    header('Location: /staff/new-sale.php');
+    exit;
+}
 
 $cartItems = json_decode($rawCartItems, true);
 
@@ -112,15 +128,16 @@ try {
     $db->beginTransaction();
 
     $stmtSale = $db->prepare('
-        INSERT INTO sales (transaction_number, user_id, total_amount, amount_paid, change_amount, payment_status, status)
-        VALUES (:txn, :user_id, :total, :paid, :change, "paid", "completed")
+        INSERT INTO sales (transaction_number, user_id, sale_date, total_amount, amount_paid, change_amount, payment_status, status)
+        VALUES (:txn, :user_id, :sale_date, :total, :paid, :change, "paid", "completed")
     ');
     $stmtSale->execute([
-        ':txn'     => $transactionNumber,
-        ':user_id' => $userId,
-        ':total'   => $totalAmount,
-        ':paid'    => $amountPaidInput,
-        ':change'  => $changeAmount
+        ':txn'       => $transactionNumber,
+        ':user_id'   => $userId,
+        ':sale_date' => $saleDate,
+        ':total'     => $totalAmount,
+        ':paid'      => $amountPaidInput,
+        ':change'    => $changeAmount
     ]);
     $saleId = $db->lastInsertId();
 

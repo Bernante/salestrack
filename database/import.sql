@@ -49,6 +49,7 @@ CREATE TABLE `sales` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `transaction_number` VARCHAR(30) NOT NULL UNIQUE,
   `user_id` INT NOT NULL,
+  `sale_date` DATE NOT NULL DEFAULT (CURDATE()),
   `total_amount` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `amount_paid` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `change_amount` DECIMAL(10,2) NOT NULL DEFAULT 0.00,

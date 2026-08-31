@@ -72,8 +72,12 @@ include __DIR__ . '/../includes/header.php';
                 <span class="font-bold text-brand-700 text-sm"><?= e($sale['staff_name']); ?></span>
             </div>
             <div>
-                <span class="block text-xs font-semibold text-brand-300 uppercase tracking-wider">Date & Time</span>
-                <span class="font-semibold text-brand-700 text-sm"><?= date('M d, Y h:i A', strtotime($sale['created_at'])); ?></span>
+                <span class="block text-xs font-semibold text-brand-300 uppercase tracking-wider">Sale Date</span>
+                <span class="font-semibold text-brand-700 text-sm"><?= date('M d, Y', strtotime($sale['sale_date'])); ?></span>
+            </div>
+            <div>
+                <span class="block text-xs font-semibold text-brand-300 uppercase tracking-wider">Recorded Time</span>
+                <span class="font-semibold text-brand-700 text-sm"><?= date('h:i A', strtotime($sale['created_at'])); ?></span>
             </div>
             <div>
                 <span class="block text-xs font-semibold text-brand-300 uppercase tracking-wider">Payment Status</span>

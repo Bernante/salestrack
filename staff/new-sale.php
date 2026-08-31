@@ -34,6 +34,11 @@ foreach ($rows as $r) {
 $productsJson = json_encode(array_values($productsMap));
 $completedSale = $_SESSION['completed_sale'] ?? null;
 if ($completedSale) unset($_SESSION['completed_sale']);
+
+// Get current date in YYYY-MM-DD format (Philippine timezone)
+date_default_timezone_set('Asia/Manila');
+$todayDate = date('Y-m-d');
+
 include __DIR__ . '/../includes/header.php';
 ?>
 <div class="py-6 space-y-6">
@@ -129,6 +134,14 @@ include __DIR__ . '/../includes/header.php';
             <form id="saleForm" action="/actions/save-sale.php" method="POST" class="bg-white p-5 rounded-md border border-brand-200 shadow-card space-y-4">
                 <?= getCsrfField(); ?>
                 <input type="hidden" name="cart_items" id="cartItemsInput">
+
+                <!-- Sale Date Picker -->
+                <div class="bg-brand-50 border border-brand-200 rounded-md p-4">
+                    <label for="saleDateInput" class="block text-xs font-semibold text-brand-700 uppercase tracking-wider mb-2">Sale Date</label>
+                    <input type="date" id="saleDateInput" name="sale_date" value="<?= $todayDate; ?>" class="w-full px-4 py-2.5 rounded-md border border-brand-200 text-brand-700 font-semibold focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200" required>
+                    <p class="text-xs text-brand-300 mt-1">Default is today. Change if this is a late entry.</p>
+                </div>
+
                 
                 <div class="flex justify-between items-center border-b border-brand-200 pb-3">
                     <h2 class="text-base font-bold text-brand-700">🛒 CURRENT SALE</h2>
