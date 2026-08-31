@@ -10,10 +10,14 @@ config/config.local.php
 !README.md
 
 # Deployment Scripts (local use only)
-deploy*.php
-auto-deploy.php
-backup-production-db.php
-verify-deployment.php
+/deploy.php
+/deploy-prod.php
+/deploy-production.php
+/auto-deploy.php
+/backup-production-db.php
+/verify-deployment.php
+/production-deploy.php
+/database-update.php
 
 # Documentation Files
 DEPLOY*.md
