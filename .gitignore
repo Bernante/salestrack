@@ -21,14 +21,15 @@ config/config.local.php
 
 # Documentation Files (excluding critical deployment guides)
 DEPLOY_NOW.md
-DEPLOYMENT_GUIDE.md
 FINAL*.md
 DATABASE*.md
 PHPMYADMIN*.md
 memory.md
 
-# Allow deployment checklist (it's needed for GitHub Actions setup)
+# Allow deployment documentation (needed for GitHub Actions setup)
 !DEPLOYMENT_CHECKLIST.md
+!DEPLOYMENT_SETUP_INSTRUCTIONS.md
+!DEPLOYMENT_GUIDE.md
 
 # Archives
 *.zip
