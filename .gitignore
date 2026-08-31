@@ -19,13 +19,16 @@ config/config.local.php
 /production-deploy.php
 /database-update.php
 
-# Documentation Files
-DEPLOY*.md
+# Documentation Files (excluding critical deployment guides)
+DEPLOY_NOW.md
+DEPLOYMENT_GUIDE.md
 FINAL*.md
 DATABASE*.md
-DEPLOYMENT*.md
 PHPMYADMIN*.md
 memory.md
+
+# Allow deployment checklist (it's needed for GitHub Actions setup)
+!DEPLOYMENT_CHECKLIST.md
 
 # Archives
 *.zip
