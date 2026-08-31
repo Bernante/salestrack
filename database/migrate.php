@@ -1,7 +1,18 @@
 <?php
 /**
- * Database Migration Script
- * Migrates item_quantity to quantity column in product_variants table
+ * Automated Database Migration Runner
+ * 
+ * Automatically runs all pending SQL migrations without manual phpMyAdmin import
+ * 
+ * Usage:
+ * 1. Create migration files: database/migrations/YYYY-MM-DD-description.sql
+ * 2. Push to GitHub: git push origin main
+ * 3. Visit: https://yourdomain.com/database/migrate.php
+ * 4. Migrations run automatically!
+ * 
+ * Example migration files:
+ * - database/migrations/2026-08-31-add-sale-date.sql
+ * - database/migrations/2026-09-01-add-notes.sql
  */
 
 require_once __DIR__ . '/../config/database.php';
@@ -9,53 +20,120 @@ require_once __DIR__ . '/../config/database.php';
 try {
     $db = getDBConnection();
     
-    echo "Starting database migration...\n\n";
+    // Create migrations tracking table
+    $db->exec("
+        CREATE TABLE IF NOT EXISTS _migrations (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            migration_name VARCHAR(255) NOT NULL UNIQUE,
+            executed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            status VARCHAR(50) DEFAULT 'success'
+        )
+    ");
     
-    // Step 1: Check current schema
-    $columns = $db->query("SHOW COLUMNS FROM product_variants")->fetchAll(PDO::FETCH_ASSOC);
-    $columnNames = array_column($columns, 'Field');
+    echo "=== AUTOMATED DATABASE MIGRATION SYSTEM ===\n\n";
     
-    echo "Current columns in product_variants:\n";
-    foreach ($columnNames as $col) {
-        echo "  - $col\n";
+    // Check if migrations folder exists
+    $migrationDir = __DIR__ . '/migrations';
+    
+    if (!is_dir($migrationDir)) {
+        echo "✓ No migrations folder found. Creating...\n";
+        mkdir($migrationDir, 0755, true);
+        echo "✓ Migrations folder created at: database/migrations/\n";
+        echo "\nTo add migrations:\n";
+        echo "1. Create .sql files in database/migrations/\n";
+        echo "2. Name them: YYYY-MM-DD-description.sql\n";
+        echo "3. Run this file again\n";
+        exit(0);
     }
-    echo "\n";
     
-    $hasQuantity = in_array('quantity', $columnNames);
-    $hasItemQuantity = in_array('item_quantity', $columnNames);
+    // Scan for migration files
+    $files = scandir($migrationDir);
     
-    // Step 2: Handle migration logic
-    if ($hasQuantity && $hasItemQuantity) {
-        // Both exist - drop the old one
-        echo "✓ Both 'quantity' and 'item_quantity' exist. Removing old 'item_quantity'...\n";
-        $db->exec("ALTER TABLE product_variants DROP COLUMN item_quantity");
-        echo "✓ Successfully dropped 'item_quantity' column\n\n";
-    } elseif ($hasItemQuantity && !$hasQuantity) {
-        // Only old column exists - rename it
-        echo "✓ Found 'item_quantity' column. Renaming to 'quantity'...\n";
-        $db->exec("ALTER TABLE product_variants CHANGE COLUMN item_quantity quantity INT NOT NULL DEFAULT 1");
-        echo "✓ Successfully renamed 'item_quantity' to 'quantity'\n\n";
-    } elseif ($hasQuantity && !$hasItemQuantity) {
-        // Only new column exists - we're good
-        echo "✓ Quantity column already exists in correct format\n\n";
+    // Filter for migration files: YYYY-MM-DD-*.sql
+    $migrations = array_filter($files, function($file) {
+        return preg_match('/^\d{4}-\d{2}-\d{2}-.+\.sql$/', $file);
+    });
+    
+    sort($migrations);
+    
+    if (empty($migrations)) {
+        echo "✓ No pending migrations.\n";
+        echo "All systems up to date!\n";
+        exit(0);
+    }
+    
+    $executed = 0;
+    $skipped = 0;
+    $failed = 0;
+    
+    foreach ($migrations as $migrationFile) {
+        // Check if migration already executed
+        $stmt = $db->prepare("SELECT id FROM _migrations WHERE migration_name = ?");
+        $stmt->execute([$migrationFile]);
+        
+        if ($stmt->fetch()) {
+            echo "⊘ SKIPPED: $migrationFile (already executed)\n";
+            $skipped++;
+            continue;
+        }
+        
+        // Read migration SQL file
+        $sqlPath = $migrationDir . '/' . $migrationFile;
+        $sqlContent = file_get_contents($sqlPath);
+        
+        if ($sqlContent === false) {
+            echo "✗ ERROR: Cannot read $migrationFile\n";
+            $failed++;
+            continue;
+        }
+        
+        try {
+            // Split SQL statements by semicolon and execute
+            $statements = array_filter(
+                array_map('trim', explode(';', $sqlContent)),
+                function($s) { return !empty(trim($s)); }
+            );
+            
+            foreach ($statements as $sql) {
+                $db->exec($sql);
+            }
+            
+            // Record migration as executed
+            $insertStmt = $db->prepare(
+                "INSERT INTO _migrations (migration_name, status) VALUES (?, 'success')"
+            );
+            $insertStmt->execute([$migrationFile]);
+            
+            echo "✓ EXECUTED: $migrationFile\n";
+            $executed++;
+            
+        } catch (PDOException $e) {
+            // Record failed migration
+            $insertStmt = $db->prepare(
+                "INSERT INTO _migrations (migration_name, status) VALUES (?, 'failed')"
+            );
+            $insertStmt->execute([$migrationFile]);
+            
+            echo "✗ FAILED: $migrationFile\n";
+            echo "  Error: " . $e->getMessage() . "\n";
+            $failed++;
+        }
+    }
+    
+    echo "\n=== MIGRATION SUMMARY ===\n";
+    echo "Executed: $executed\n";
+    echo "Skipped:  $skipped\n";
+    echo "Failed:   $failed\n";
+    
+    if ($failed > 0) {
+        echo "\n⚠ Some migrations failed. Check errors above.\n";
+        exit(1);
     } else {
-        // Neither exists - add it
-        echo "✓ Adding 'quantity' column...\n";
-        $db->exec("ALTER TABLE product_variants ADD COLUMN quantity INT NOT NULL DEFAULT 1 AFTER variant_name");
-        echo "✓ Successfully added 'quantity' column\n\n";
+        echo "\n✓ All migrations completed successfully!\n";
     }
-    
-    // Step 3: Verify final schema
-    $columns = $db->query("SHOW COLUMNS FROM product_variants")->fetchAll(PDO::FETCH_ASSOC);
-    echo "Final columns in product_variants:\n";
-    foreach ($columns as $col) {
-        echo "  - {$col['Field']} ({$col['Type']})\n";
-    }
-    
-    echo "\n✓ Migration completed successfully!\n";
     
 } catch (Exception $e) {
-    echo "✗ Migration Error: " . $e->getMessage() . "\n";
+    echo "✗ FATAL ERROR: " . $e->getMessage() . "\n";
     exit(1);
 }
 ?>

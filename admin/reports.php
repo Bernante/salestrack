@@ -54,15 +54,6 @@ $stmtVar = $db->prepare("
 ");
 $stmtVar->execute($params);
 $variantBreakdown = $stmtVar->fetchAll();
-
-$smallEggs = 0; $mediumEggs = 0; $largeEggs = 0;
-foreach ($variantBreakdown as $vb) {
-    if (strcasecmp($vb['product_name'], 'Egg') === 0) {
-        if (strcasecmp($vb['variant_name'], 'Small') === 0) $smallEggs = intval($vb['total_qty']);
-        if (strcasecmp($vb['variant_name'], 'Medium') === 0) $mediumEggs = intval($vb['total_qty']);
-        if (strcasecmp($vb['variant_name'], 'Large') === 0) $largeEggs = intval($vb['total_qty']);
-    }
-}
 include __DIR__ . '/../includes/header.php';
 ?>
 <div class="py-6 space-y-6">
@@ -156,25 +147,6 @@ include __DIR__ . '/../includes/header.php';
                 </span>
             </div>
             <div id="salesTrendChart" style="width:100%; min-height:260px;"></div>
-        </div>
-    </div>
-
-    <!-- Egg Variant Summary -->
-    <div class="w-full rounded-md border border-brand-200 bg-white shadow-card p-6 space-y-3">
-        <h2 class="text-base font-bold text-brand-700">Egg Sizes Breakdown</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center">
-            <div class="bg-brand-50 p-4 rounded-md border border-brand-200">
-                <span class="block text-xs font-semibold text-brand-300 uppercase tracking-wider">Small Eggs</span>
-                <span class="text-2xl font-bold text-brand-700 mt-1 block"><?= number_format($smallEggs); ?> pcs</span>
-            </div>
-            <div class="bg-brand-50 p-4 rounded-md border border-brand-200">
-                <span class="block text-xs font-semibold text-brand-300 uppercase tracking-wider">Medium Eggs</span>
-                <span class="text-2xl font-bold text-brand-700 mt-1 block"><?= number_format($mediumEggs); ?> pcs</span>
-            </div>
-            <div class="bg-brand-50 p-4 rounded-md border border-brand-200">
-                <span class="block text-xs font-semibold text-brand-300 uppercase tracking-wider">Large Eggs</span>
-                <span class="text-2xl font-bold text-brand-700 mt-1 block"><?= number_format($largeEggs); ?> pcs</span>
-            </div>
         </div>
     </div>
 
