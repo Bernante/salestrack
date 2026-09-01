@@ -1,61 +1,70 @@
 <?php
 /**
- * SalesTrack Deployment Diagnostic Report
- * Generated: 2026-08-31
+ * SalesTrack Deployment Diagnostic
+ * Place this file in htdocs/ and visit: https://salestracks.infinityfreeapp.com/diagnostic.php
+ * This will show you exactly what's wrong with your deployment
  */
 
-header('Content-Type: text/plain; charset=utf-8');
+echo "<h1>SalesTrack Deployment Diagnostic</h1>";
+echo "<pre style='background: #f5f5f5; padding: 15px; border-radius: 5px; font-family: monospace;'>";
 
-echo "=== SalesTrack Deployment Diagnostic Report ===\n";
-echo "Generated: " . date('Y-m-d H:i:s') . "\n\n";
-
-echo "1. PHP Environment\n";
-echo "   PHP Version: " . phpversion() . "\n";
-echo "   Server Software: " . ($_SERVER['SERVER_SOFTWARE'] ?? 'Unknown') . "\n";
-echo "   OS: " . php_uname() . "\n\n";
-
-echo "2. Directory Information\n";
-echo "   Document Root: " . $_SERVER['DOCUMENT_ROOT'] . "\n";
-echo "   Script Filename: " . $_SERVER['SCRIPT_FILENAME'] . "\n";
-echo "   Script Name: " . $_SERVER['SCRIPT_NAME'] . "\n";
-echo "   Request URI: " . $_SERVER['REQUEST_URI'] . "\n";
-echo "   Request Method: " . $_SERVER['REQUEST_METHOD'] . "\n\n";
-
-echo "3. File System\n";
-echo "   Current Directory: " . getcwd() . "\n";
-echo "   Is Writable: " . (is_writable('.') ? 'YES' : 'NO') . "\n\n";
-
-echo "4. Module Status\n";
-echo "   mod_rewrite: " . (function_exists('apache_get_modules') && in_array('mod_rewrite', apache_get_modules()) ? 'ENABLED' : 'UNKNOWN/DISABLED') . "\n";
-echo "   All Modules: " . (function_exists('apache_get_modules') ? implode(', ', apache_get_modules()) : 'Not available') . "\n\n";
-
-echo "5. File Check\n";
-$files_to_check = [
+// Check critical files
+$criticalFiles = [
     'index.php',
     'login.php',
-    '.htaccess',
+    'logout.php',
     'config/database.php',
-    'includes/auth.php'
+    'includes/auth.php',
+    'includes/header.php',
+    'includes/footer.php',
+    'admin/dashboard.php',
+    'staff/dashboard.php'
 ];
 
-foreach ($files_to_check as $file) {
-    $path = $_SERVER['DOCUMENT_ROOT'] . '/' . ltrim($file, '/');
-    $exists = file_exists($path) ? 'EXISTS' : 'MISSING';
-    $readable = is_readable($path) ? 'READABLE' : 'NOT READABLE';
-    echo "   $file: $exists [$readable]\n";
+echo "=== CRITICAL FILES CHECK ===\n";
+foreach ($criticalFiles as $file) {
+    $exists = file_exists(__DIR__ . '/' . $file);
+    $status = $exists ? '✓ EXISTS' : '✗ MISSING';
+    echo "$status: $file\n";
 }
 
-echo "\n6. Database Connection Test\n";
+echo "\n=== DIRECTORY STRUCTURE ===\n";
+$dirs = ['admin', 'staff', 'includes', 'config', 'actions', 'assets', 'uploads', 'database'];
+foreach ($dirs as $dir) {
+    $exists = is_dir(__DIR__ . '/' . $dir);
+    $status = $exists ? '✓ EXISTS' : '✗ MISSING';
+    if ($exists) {
+        $fileCount = count(glob(__DIR__ . '/' . $dir . '/*'));
+        echo "$status: /$dir/ ($fileCount files)\n";
+    } else {
+        echo "$status: /$dir/\n";
+    }
+}
+
+echo "\n=== DATABASE CONNECTION ===\n";
 try {
-    require_once 'config/database.php';
+    require_once __DIR__ . '/config/database.php';
     $pdo = getDBConnection();
-    echo "   Status: CONNECTED\n";
-    echo "   Database: " . DB_NAME . "\n";
-    echo "   Host: " . DB_HOST . "\n";
+    echo "✓ Database connection successful!\n";
+    
+    // Check tables
+    $tables = $pdo->query("SHOW TABLES")->fetchAll(PDO::FETCH_COLUMN);
+    echo "\nTables found: " . implode(', ', $tables) . "\n";
+    
 } catch (Exception $e) {
-    echo "   Status: FAILED\n";
-    echo "   Error: " . $e->getMessage() . "\n";
+    echo "✗ Database connection failed: " . $e->getMessage() . "\n";
 }
 
-echo "\n=== End of Report ===\n";
+echo "\n=== PERMISSIONS CHECK ===\n";
+echo "Current directory: " . __DIR__ . "\n";
+echo "PHP Version: " . phpversion() . "\n";
+echo "File upload enabled: " . (ini_get('file_uploads') ? 'Yes' : 'No') . "\n";
+echo "Max upload size: " . ini_get('upload_max_filesize') . "\n";
+
+echo "\n=== NEXT STEPS ===\n";
+echo "1. If files are MISSING, re-upload the ZIP to htdocs/ and extract\n";
+echo "2. If database connection FAILED, check config/database.php credentials\n";
+echo "3. If everything is ✓, delete this file and visit: https://salestracks.infinityfreeapp.com/login.php\n";
+
+echo "</pre>";
 ?>

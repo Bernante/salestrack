@@ -2,7 +2,6 @@
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../includes/staff-auth.php';
 require_once __DIR__ . '/../includes/csrf.php';
-require_once __DIR__ . '/../lib/SaleLineItemCalculator.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     header('Location: /staff/new-sale.php');
@@ -101,13 +100,16 @@ try {
         $piecesPerUnit = intval($vData['pieces_per_unit'] ?? 1);
         $sellingUnit = trim($vData['selling_unit'] ?? 'piece');
         
-        // Use SaleLineItemCalculator for unified pricing logic
-        $subtotal = SaleLineItemCalculator::calculateSubtotal(
-            $qtyUnits,
-            $unitPrice,
-            $sellingUnit,
-            $piecesPerUnit
-        );
+        // Calculation based on selling unit
+        if ($sellingUnit === 'bundle') {
+            // For bundle: qtyUnits is pieces entered, must divide by piecesPerUnit to get number of bundles
+            // Formula: (pieces ÷ pieces_per_unit) × price_per_bundle
+            $subtotal = round(($qtyUnits / $piecesPerUnit) * $unitPrice, 2);
+        } else {
+            // For other units (piece, half_tray, tray): qtyUnits is quantity of that unit
+            // Formula: quantity × price
+            $subtotal = round($qtyUnits * $unitPrice, 2);
+        }
         $totalAmount += $subtotal;
 
         $calculatedItems[] = [
@@ -124,14 +126,14 @@ try {
 
     $totalAmount = round($totalAmount, 2);
 
-    // 3. Payment Validation using SaleLineItemCalculator
-    if (!SaleLineItemCalculator::validatePayment($amountPaidInput, $totalAmount)) {
+    // 3. Payment Validation
+    if ($amountPaidInput < $totalAmount) {
         $_SESSION['flash_error'] = 'Amount paid (₱' . number_format($amountPaidInput, 2) . ') is insufficient. Total is ₱' . number_format($totalAmount, 2) . '.';
         header('Location: /staff/new-sale.php');
         exit;
     }
 
-    $changeAmount = SaleLineItemCalculator::calculateChange($amountPaidInput, $totalAmount);
+    $changeAmount = round($amountPaidInput - $totalAmount, 2);
 
     // 4. Generate Unique Transaction Number
     $transactionNumber = 'SALE-' . str_pad((string)mt_rand(1, 999999), 6, '0', STR_PAD_LEFT);

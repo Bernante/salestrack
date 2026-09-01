@@ -40,18 +40,18 @@ include __DIR__ . '/../includes/header.php';
 ?>
 
 <div class="max-w-4xl mx-auto py-6 space-y-6">
-    <div class="w-full rounded-md border border-brand-200 bg-white shadow-card p-6 flex items-center justify-between">
+    <div class="w-full rounded-md border border-brand-200 bg-white shadow-card p-4 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
             <span class="text-xs font-semibold text-brand-300 uppercase tracking-wider block">Official Receipt</span>
-            <h1 class="text-2xl font-bold text-brand-700 font-mono">Txn #<?= e($sale['transaction_number']); ?></h1>
+            <h1 class="text-xl sm:text-2xl font-bold text-brand-700 font-mono">Txn #<?= e($sale['transaction_number']); ?></h1>
         </div>
-        <a href="/admin/sales.php" class="inline-flex items-center gap-1 px-4 py-2 bg-brand-100 hover:bg-brand-200 text-brand-500 font-semibold text-sm rounded-sm transition-colors">
+        <a href="/admin/sales.php" class="inline-flex items-center justify-center gap-1 px-4 py-2 bg-brand-100 hover:bg-brand-200 text-brand-500 font-semibold text-sm rounded-sm transition-colors">
             &larr; Back to Sales History
         </a>
     </div>
 
-    <div class="w-full rounded-md border border-brand-200 bg-white shadow-card p-6 space-y-6">
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 bg-brand-50 p-5 rounded-md border border-brand-200 text-sm">
+    <div class="w-full rounded-md border border-brand-200 bg-white shadow-card p-4 sm:p-6 space-y-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 bg-brand-50 p-4 sm:p-5 rounded-md border border-brand-200 text-sm">
             <div>
                 <span class="block text-xs font-semibold text-brand-300 uppercase tracking-wider">Staff Member</span>
                 <span class="font-bold text-brand-700 text-sm"><?= e($sale['staff_name']); ?></span>
@@ -82,24 +82,24 @@ include __DIR__ . '/../includes/header.php';
         <div>
             <h3 class="text-sm font-semibold text-brand-700 uppercase tracking-wider mb-3">Purchased Items Breakdown</h3>
             <div class="overflow-x-auto border border-brand-200 rounded-md">
-                <table class="w-full text-left text-sm min-w-[500px]">
+                <table class="w-full text-left text-sm min-w-full">
                     <thead>
                         <tr class="border-b border-brand-200">
-                            <th class="px-5 py-3 text-sm font-semibold text-brand-300">Product</th>
-                            <th class="px-5 py-3 text-sm font-semibold text-brand-300">Variant</th>
-                            <th class="px-5 py-3 text-sm font-semibold text-brand-300">Qty</th>
-                            <th class="px-5 py-3 text-sm font-semibold text-brand-300">Unit Price</th>
-                            <th class="px-5 py-3 text-sm font-semibold text-brand-300 text-right">Subtotal</th>
+                            <th class="px-4 sm:px-5 py-3 text-xs sm:text-sm font-semibold text-brand-300">Product</th>
+                            <th class="px-4 sm:px-5 py-3 text-xs sm:text-sm font-semibold text-brand-300">Variant</th>
+                            <th class="px-4 sm:px-5 py-3 text-xs sm:text-sm font-semibold text-brand-300">Qty</th>
+                            <th class="px-4 sm:px-5 py-3 text-xs sm:text-sm font-semibold text-brand-300">Unit Price</th>
+                            <th class="px-4 sm:px-5 py-3 text-xs sm:text-sm font-semibold text-brand-300 text-right">Subtotal</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php foreach ($items as $item): ?>
                             <tr class="border-b border-brand-100 hover:bg-brand-50 transition-colors">
-                                <td class="px-5 py-3.5 font-bold text-brand-700 text-sm"><?= e($item['product_name']); ?></td>
-                                <td class="px-5 py-3.5 text-brand-700 text-sm"><?= e($item['variant_name']); ?></td>
-                                <td class="px-5 py-3.5 font-semibold text-brand-700 text-sm"><?= $item['quantity']; ?></td>
-                                <td class="px-5 py-3.5 text-brand-700 text-sm">₱<?= number_format($item['unit_price'], 2); ?></td>
-                                <td class="px-5 py-3.5 text-right font-bold text-brand-500 text-sm">₱<?= number_format($item['subtotal'], 2); ?></td>
+                                <td class="px-4 sm:px-5 py-3 font-bold text-brand-700 text-xs sm:text-sm"><?= e($item['product_name']); ?></td>
+                                <td class="px-4 sm:px-5 py-3 text-brand-700 text-xs sm:text-sm"><?= e($item['variant_name']); ?></td>
+                                <td class="px-4 sm:px-5 py-3 font-semibold text-brand-700 text-xs sm:text-sm"><?= $item['quantity']; ?></td>
+                                <td class="px-4 sm:px-5 py-3 text-brand-700 text-xs sm:text-sm">₱<?= number_format($item['unit_price'], 2); ?></td>
+                                <td class="px-4 sm:px-5 py-3 text-right font-bold text-brand-500 text-xs sm:text-sm">₱<?= number_format($item['subtotal'], 2); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
@@ -107,10 +107,10 @@ include __DIR__ . '/../includes/header.php';
             </div>
         </div>
 
-        <div class="border-t border-brand-200 pt-5 space-y-2 text-right">
-            <div class="text-sm text-brand-300 font-semibold">Total Amount: <span class="text-xl font-bold text-brand-500 ml-2">₱<?= number_format($sale['total_amount'], 2); ?></span></div>
-            <div class="text-sm text-brand-300 font-semibold">Amount Paid: <span class="text-brand-700 ml-2">₱<?= number_format($sale['amount_paid'], 2); ?></span></div>
-            <div class="text-sm text-brand-300 font-semibold">Change Given: <span class="text-brand-700 ml-2">₱<?= number_format($sale['change_amount'], 2); ?></span></div>
+        <div class="border-t border-brand-200 pt-4 sm:pt-5 space-y-2 text-right text-xs sm:text-sm">
+            <div class="text-brand-300 font-semibold">Total Amount: <span class="text-lg sm:text-xl font-bold text-brand-500 ml-2">₱<?= number_format($sale['total_amount'], 2); ?></span></div>
+            <div class="text-brand-300 font-semibold">Amount Paid: <span class="text-brand-700 ml-2">₱<?= number_format($sale['amount_paid'], 2); ?></span></div>
+            <div class="text-brand-300 font-semibold">Change Given: <span class="text-brand-700 ml-2">₱<?= number_format($sale['change_amount'], 2); ?></span></div>
         </div>
     </div>
 </div>

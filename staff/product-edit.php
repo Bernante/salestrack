@@ -20,27 +20,27 @@ include __DIR__ . '/../includes/header.php';
 ?>
 
 <div class="max-w-4xl mx-auto py-6 space-y-6">
-    <div class="w-full rounded-md border border-brand-200 bg-white shadow-card p-6 flex items-center justify-between">
-        <h1 class="text-xl font-bold text-brand-700">Edit Product: <?= e($product['name']); ?></h1>
+    <div class="w-full rounded-md border border-brand-200 bg-white shadow-card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <h1 class="text-lg sm:text-xl font-bold text-brand-700">Edit Product: <?= e($product['name']); ?></h1>
         <a href="/staff/products.php" class="text-sm font-semibold text-brand-500 hover:text-brand-600 transition-colors">&larr; Back to Products</a>
     </div>
 
-    <form action="/actions/update-product.php" method="POST" enctype="multipart/form-data" class="w-full rounded-md border border-brand-200 bg-white shadow-card p-6 space-y-6">
+    <form action="/actions/update-product.php" method="POST" enctype="multipart/form-data" class="w-full rounded-md border border-brand-200 bg-white shadow-card p-4 sm:p-6 space-y-6">
         <?= getCsrfField(); ?>
         <input type="hidden" name="product_id" value="<?= $product['id']; ?>">
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
             <div class="md:col-span-2 space-y-4">
                 <div>
-                    <label class="block text-sm font-semibold text-brand-700 mb-1">Product Name</label>
-                    <input type="text" name="name" value="<?= e($product['name']); ?>" required class="w-full px-4 py-2.5 rounded-md border border-brand-200 text-sm text-brand-700 focus:outline-none focus:border-brand-500">
+                    <label class="block text-xs sm:text-sm font-semibold text-brand-700 mb-1">Product Name</label>
+                    <input type="text" name="name" value="<?= e($product['name']); ?>" required class="w-full px-3 sm:px-4 py-2 sm:py-2.5 rounded-md border border-brand-200 text-sm text-brand-700 focus:outline-none focus:border-brand-500">
                 </div>
             </div>
 
             <!-- Product Photo Section -->
             <div class="bg-brand-50 p-4 rounded-md border border-brand-200 text-center space-y-3">
-                <label class="block text-sm font-semibold text-brand-700">Product Photo</label>
-                <div class="w-28 h-28 mx-auto rounded-md border-2 border-dashed border-brand-200 flex items-center justify-center bg-white overflow-hidden relative shadow-inner">
+                <label class="block text-xs sm:text-sm font-semibold text-brand-700">Product Photo</label>
+                <div class="w-20 h-20 sm:w-28 sm:h-28 mx-auto rounded-md border-2 border-dashed border-brand-200 flex items-center justify-center bg-white overflow-hidden relative shadow-inner">
                     <img id="photoPreview" src="<?= e(getProductImage($product['image'], $product['name'])); ?>" alt="<?= e($product['name']); ?>" class="w-full h-full object-cover">
                 </div>
                 <div>
@@ -123,9 +123,9 @@ include __DIR__ . '/../includes/header.php';
             </div>
         </div>
 
-        <div class="pt-4 border-t border-brand-200 flex justify-end gap-3">
-            <a href="/staff/products.php" class="px-5 py-2.5 rounded-md border border-brand-200 text-brand-700 font-semibold text-sm hover:bg-brand-50 transition-colors">Cancel</a>
-            <button type="submit" class="px-5 py-2.5 rounded-md bg-brand-500 hover:bg-brand-600 text-white font-semibold text-sm shadow-sm transition-colors">Save Changes</button>
+        <div class="pt-4 border-t border-brand-200 flex flex-col sm:flex-row sm:justify-end gap-3">
+            <a href="/staff/products.php" class="px-4 sm:px-5 py-2.5 rounded-md border border-brand-200 text-brand-700 font-semibold text-sm hover:bg-brand-50 transition-colors text-center">Cancel</a>
+            <button type="submit" class="px-4 sm:px-5 py-2.5 rounded-md bg-brand-500 hover:bg-brand-600 text-white font-semibold text-sm shadow-sm transition-colors">Save Changes</button>
         </div>
     </form>
 </div>

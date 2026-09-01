@@ -1,6 +1,8 @@
--- SalesTrack Database Schema (InfinityFree / Production Import)
--- Import this file directly into phpMyAdmin inside your created database
+-- SalesTrack Database Schema for InfinityFree
+-- NOTE: This uses the pre-allocated database (if0_42783325_salestrack2)
+-- Do NOT run the CREATE DATABASE statement on InfinityFree
 
+-- Drop tables if exists for clean reinstall capability
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS `sale_items`;
 DROP TABLE IF EXISTS `sales`;
@@ -37,6 +39,8 @@ CREATE TABLE `product_variants` (
   `product_id` INT NOT NULL,
   `variant_name` VARCHAR(100) NOT NULL,
   `quantity` INT NOT NULL DEFAULT 1,
+  `selling_unit` ENUM('piece', 'half_tray', 'tray', 'bundle') NOT NULL DEFAULT 'piece',
+  `pieces_per_unit` INT NOT NULL DEFAULT 1,
   `price` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `status` ENUM('active', 'inactive') NOT NULL DEFAULT 'active',
   `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -49,7 +53,6 @@ CREATE TABLE `sales` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `transaction_number` VARCHAR(30) NOT NULL UNIQUE,
   `user_id` INT NOT NULL,
-  `sale_date` DATE NOT NULL DEFAULT (CURDATE()),
   `total_amount` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `amount_paid` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
   `change_amount` DECIMAL(10,2) NOT NULL DEFAULT 0.00,

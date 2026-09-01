@@ -22,7 +22,7 @@ include __DIR__ . '/../includes/header.php';
 
     <div class="w-full rounded-md border border-brand-200 bg-white shadow-card overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm min-w-[650px]">
+            <table class="w-full text-left text-sm min-w-full">
                 <thead>
                     <tr class="border-b border-brand-200">
                         <th class="px-6 py-3.5 text-sm font-semibold text-brand-300">Full Name</th>

@@ -1,8 +1,0 @@
-<?php
-echo "PHP is working! Server time: " . date('Y-m-d H:i:s') . "\n";
-echo "PHP Version: " . phpversion() . "\n";
-echo "Document Root: " . $_SERVER['DOCUMENT_ROOT'] . "\n";
-echo "Script Filename: " . $_SERVER['SCRIPT_FILENAME'] . "\n";
-echo "Request URI: " . $_SERVER['REQUEST_URI'] . "\n";
-phpinfo();
-?>

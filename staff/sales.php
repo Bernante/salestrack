@@ -35,18 +35,19 @@ include __DIR__ . '/../includes/header.php';
             <p class="text-sm text-brand-300">View transactions you have recorded at the store.</p>
         </div>
         
-        <form method="GET" class="flex items-center gap-2">
-            <input type="text" name="search" value="<?= e($search); ?>" placeholder="Transaction #" class="px-4 py-2 rounded-md border border-brand-200 text-sm focus:outline-none focus:border-brand-500 w-full sm:w-56">
-            <button type="submit" class="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-md text-sm font-semibold shadow-sm transition-colors">Search</button>
+        <!-- Filter Form -->
+        <form method="GET" class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2 w-full">
+            <input type="text" name="search" value="<?= e($search); ?>" placeholder="Transaction #" class="px-4 py-2 rounded-md border border-brand-200 text-sm focus:outline-none focus:border-brand-500 w-full sm:w-48 h-10">
+            <button type="submit" class="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-md text-sm font-semibold shadow-sm transition-colors h-10">Search</button>
             <?php if (!empty($search)): ?>
-                <a href="/staff/sales.php" class="text-sm font-semibold text-brand-300 hover:text-brand-500 px-2">Clear</a>
+                <a href="/staff/sales.php" class="text-sm font-semibold text-brand-300 hover:text-brand-500 px-2 py-2 text-center">Clear</a>
             <?php endif; ?>
         </form>
     </div>
 
     <div class="w-full rounded-md border border-brand-200 bg-white shadow-card overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm min-w-[650px]">
+            <table class="w-full text-left text-sm min-w-full">
                 <thead>
                     <tr class="border-b border-brand-200">
                         <th class="px-6 py-3.5 text-sm font-semibold text-brand-300">Transaction #</th>

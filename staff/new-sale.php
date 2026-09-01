@@ -207,8 +207,8 @@ include __DIR__ . '/../includes/header.php';
     </div>
 
     <!-- MODAL: VARIANT SELECTION & QUANTITY -->
-    <div id="variantModal" class="fixed inset-0 bg-brand-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-md max-w-md w-full p-6 space-y-5 shadow-card border border-brand-200 transform transition-all scale-95 opacity-0 duration-200" id="variantModalContent">
+    <div id="variantModal" class="fixed inset-0 bg-brand-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+        <div class="bg-white rounded-md max-w-md w-full p-4 sm:p-6 space-y-5 shadow-card border border-brand-200 transform transition-all scale-95 opacity-0 duration-200" id="variantModalContent">
             <div class="flex justify-between items-start border-b border-brand-200 pb-3">
                 <div class="flex items-center gap-3">
                     <img id="modalProductImg" src="" alt="Product" class="w-14 h-14 rounded-md object-cover border border-brand-200 shadow-sm">

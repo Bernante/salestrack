@@ -29,7 +29,7 @@ $recentSales = $db->query('
 include __DIR__ . '/../includes/header.php';
 ?>
 <div class="py-6">
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8 max-w-3xl mx-auto">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
         <div class="w-full rounded-md border border-brand-200 bg-white shadow-card">
             <div class="w-full p-6 pb-0"><div class="flex items-center justify-between border-b border-brand-200 pb-4">
                 <h5 class="items-center font-semibold inline-flex text-lg text-brand-700"><span class="flex items-center text-brand-500 bg-brand-100 h-9 justify-center mr-2 rounded-sm w-9"><i class="fas fa-peso-sign"></i></span>Today's Sales</h5>
@@ -50,7 +50,7 @@ include __DIR__ . '/../includes/header.php';
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
         <div class="lg:col-span-4 w-full rounded-md border border-brand-200 bg-white shadow-card">
             <div class="w-full p-6 pb-0"><div class="flex items-center justify-between border-b border-brand-200 pb-4"><h5 class="font-semibold text-lg text-brand-700">Variant Breakdown</h5><i class="fas fa-ellipsis-h text-brand-300"></i></div></div>
             <div class="w-full p-6 space-y-3">

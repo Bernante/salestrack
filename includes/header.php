@@ -107,7 +107,7 @@ $pageTitle = $pageTitle ?? 'SalesTrack';
                             <span class="font-semibold text-sm hidden lg:block ml-2 text-brand-700"><?= e($currentUser['name'] ?? 'User'); ?></span>
                             <span class="ml-2 text-brand-500"><i class="fas fa-chevron-down text-xs"></i></span>
                         </button>
-                        <ul class="border border-brand-200 absolute bg-white hidden mt-2 px-4 py-2 right-0 rounded-md shadow-card text-left w-[10rem] z-50" id="profileDropdownMenu">
+                        <ul class="border border-brand-200 absolute bg-white hidden mt-2 px-4 py-2 right-0 rounded-md shadow-card text-left w-max max-w-[90vw] z-[60]" id="profileDropdownMenu">
                             <li class="py-1.5 duration-300 hover:text-brand-500 text-sm text-brand-400 transition-colors">
                                 <a href="<?= ($currentUser['role'] ?? '') === 'admin' ? '/admin/dashboard.php' : '/staff/dashboard.php'; ?>">
                                     <i class="fas fa-user w-5"></i> <span>Profile</span>

@@ -43,23 +43,23 @@ include __DIR__ . '/../includes/header.php';
         </div>
         
         <!-- Filter Form -->
-        <form method="GET" class="flex flex-wrap items-center gap-2.5">
-            <input type="text" name="search" value="<?= e($search); ?>" placeholder="Search Txn # or Staff" class="px-4 py-2 rounded-md border border-brand-200 text-sm focus:outline-none focus:border-brand-500 w-full sm:w-56">
-            <select name="status" class="px-3.5 py-2 rounded-md border border-brand-200 text-sm font-semibold text-brand-700 focus:outline-none focus:border-brand-500">
+        <form method="GET" class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-2.5 w-full">
+            <input type="text" name="search" value="<?= e($search); ?>" placeholder="Search Txn # or Staff" class="px-4 py-2 rounded-md border border-brand-200 text-sm focus:outline-none focus:border-brand-500 w-full sm:w-56 h-10">
+            <select name="status" class="px-3.5 py-2 rounded-md border border-brand-200 text-sm font-semibold text-brand-700 focus:outline-none focus:border-brand-500 h-10">
                 <option value="">All Statuses</option>
                 <option value="completed" <?= $statusFilter === 'completed' ? 'selected' : ''; ?>>Completed</option>
                 <option value="cancelled" <?= $statusFilter === 'cancelled' ? 'selected' : ''; ?>>Cancelled</option>
             </select>
-            <button type="submit" class="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-md text-sm font-semibold shadow-sm transition-colors">Filter</button>
+            <button type="submit" class="px-4 py-2 bg-brand-500 hover:bg-brand-600 text-white rounded-md text-sm font-semibold shadow-sm transition-colors h-10">Filter</button>
             <?php if (!empty($search) || !empty($statusFilter)): ?>
-                <a href="/admin/sales.php" class="text-sm font-semibold text-brand-300 hover:text-brand-500 px-2">Reset</a>
+                <a href="/admin/sales.php" class="text-sm font-semibold text-brand-300 hover:text-brand-500 px-2 py-2">Reset</a>
             <?php endif; ?>
         </form>
     </div>
 
     <div class="w-full rounded-md border border-brand-200 bg-white shadow-card overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm min-w-[700px]">
+            <table class="w-full text-left text-sm min-w-full">
                 <thead>
                     <tr class="border-b border-brand-200">
                         <th class="px-6 py-3.5 text-sm font-semibold text-brand-300">Transaction #</th>
