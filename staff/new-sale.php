@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $pageTitle = 'New Sale';
 require_once __DIR__ . '/../includes/staff-auth.php';
 require_once __DIR__ . '/../includes/csrf.php';
@@ -141,16 +141,19 @@ include __DIR__ . '/../includes/header.php';
         </div>
 
         <!-- RIGHT: CURRENT CART & CHECKOUT -->
-        <div class="lg:col-span-5 space-y-4 sticky top-6">
-            <form id="saleForm" action="/actions/save-sale.php" method="POST" class="bg-white p-5 rounded-md border border-brand-200 shadow-card space-y-4">
+        <div class="lg:col-span-5 space-y-4 sticky top-6 z-40">
+            <form id="saleForm" action="/actions/save-sale.php" method="POST" class="bg-white p-4 sm:p-5 rounded-md border border-brand-200 shadow-card space-y-4">
                 <?= getCsrfField(); ?>
                 <input type="hidden" name="cart_items" id="cartItemsInput">
 
                 <!-- Sale Date Picker -->
-                <div class="bg-brand-50 border border-brand-200 rounded-md p-4">
+                <div class="bg-brand-50 border border-brand-200 rounded-md p-3 sm:p-4">
                     <label for="saleDateInput" class="block text-xs font-semibold text-brand-700 uppercase tracking-wider mb-2">Sale Date</label>
-                    <input type="date" id="saleDateInput" name="sale_date" value="<?= $todayDate; ?>" class="w-full px-4 py-2.5 rounded-md border border-brand-200 text-brand-700 font-semibold focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200" required>
-                    <p class="text-xs text-brand-300 mt-1">Default is today. Change if this is a late entry.</p>
+                    <div class="relative">
+                        <input type="date" id="saleDateInput" name="sale_date" value="<?= $todayDate; ?>" class="w-full px-3 sm:px-4 py-3 sm:py-2.5 rounded-md border border-brand-200 text-brand-700 font-semibold text-sm sm:text-base focus:outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200 appearance-none cursor-pointer" required>
+                        <span class="pointer-events-none absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 text-brand-400 text-lg sm:text-xl">📅</span>
+                    </div>
+                    <p class="text-xs text-brand-300 mt-2 sm:mt-1">Default is today. Change if this is a late entry.</p>
                 </div>
 
                 

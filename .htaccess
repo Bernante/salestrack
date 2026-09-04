@@ -1,0 +1,28 @@
+# SalesTrack Production Security Configuration
+
+# Disable error display to users (belt-and-suspenders with PHP ini_set)
+php_flag display_errors off
+php_flag display_startup_errors off
+php_value error_reporting E_ALL
+php_flag log_errors on
+
+# Prevent directory listing
+Options -Indexes
+
+# Disable access to sensitive files
+<FilesMatch "\.(env|local|config|sql|sqlite)$">
+    Order Allow,Deny
+    Deny from all
+</FilesMatch>
+
+# Prevent access to logs and config directories
+<DirectoryMatch "^/logs|^/config">
+    Order Allow,Deny
+    Deny from all
+</DirectoryMatch>
+
+# Security headers
+Header set X-Frame-Options "SAMEORIGIN"
+Header set X-Content-Type-Options "nosniff"
+Header set X-XSS-Protection "1; mode=block"
+Header set Referrer-Policy "strict-origin-when-cross-origin"

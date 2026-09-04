@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $pageTitle = 'Admin Dashboard';
 require_once __DIR__ . '/../includes/admin-auth.php';
 
@@ -28,7 +28,23 @@ $recentSales = $db->query('
 
 include __DIR__ . '/../includes/header.php';
 ?>
-<div class="py-6">
+
+<div class="py-6 space-y-6">
+    <!-- Welcome Banner -->
+    <div class="bg-gradient-to-r from-brand-700 via-brand-600 to-brand-500 text-white p-4 sm:p-6 md:p-8 rounded-md shadow-card flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-5">
+        <div class="flex-1">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-xs font-semibold mb-2">
+                <span class="w-2 h-2 rounded-full bg-brand-500 animate-pulse"></span> Terminal Ready
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-bold tracking-tight">Welcome back, <?= e($_SESSION['user_name']); ?>! 👋</h1>
+            <p class="text-white/80 text-sm mt-1 sm:mt-2">Monitor sales performance, manage your product catalog, and keep your team on track.</p>
+        </div>
+        <a href="/admin/reports.php" class="inline-flex items-center justify-center gap-2 px-4 sm:px-6 py-3 sm:py-3.5 bg-white text-brand-500 hover:bg-brand-50 font-bold text-sm sm:text-base rounded-md shadow-md transition flex-shrink-0 whitespace-nowrap w-full sm:w-auto">
+            <i class="fas fa-chart-line"></i>
+            <span>VIEW REPORTS</span>
+        </a>
+    </div>
+
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-8">
         <div class="w-full rounded-md border border-brand-200 bg-white shadow-card">
             <div class="w-full p-6 pb-0"><div class="flex items-center justify-between border-b border-brand-200 pb-4">
@@ -122,6 +138,7 @@ include __DIR__ . '/../includes/header.php';
             </div>
         </div>
     </div>
+</div>
 </div>
 <?php include __DIR__ . '/../includes/footer.php'; ?>
 
