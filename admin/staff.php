@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $pageTitle = 'Staff Management';
 require_once __DIR__ . '/../includes/admin-auth.php';
 
@@ -21,8 +21,36 @@ include __DIR__ . '/../includes/header.php';
     </div>
 
     <div class="w-full rounded-md border border-brand-200 bg-white shadow-card overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm min-w-full">
+        <!-- Mobile Card View (hidden on md+) -->
+        <div class="md:hidden p-6 space-y-3">
+            <?php if (empty($users)): ?>
+                <div class="text-center text-sm text-brand-300 italic py-8">No staff found.</div>
+            <?php else: ?>
+                <?php foreach ($users as $u): ?>
+                    <div class="border border-brand-100 rounded-md p-4 space-y-2 hover:bg-brand-50 transition-colors">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold text-brand-300 uppercase">Name</span>
+                            <span class="font-bold text-brand-700 text-sm"><?= e($u['name']); ?></span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold text-brand-300 uppercase">Role</span>
+                            <span class="text-sm text-brand-700"><?= e($u['role']); ?></span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold text-brand-300 uppercase">Status</span>
+                            <span class="px-2 py-1 rounded text-xs font-semibold <?= $u['status'] === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'; ?>"><?= ucfirst($u['status']); ?></span>
+                        </div>
+                        <div class="pt-2 border-t border-brand-100 flex gap-2">
+                            <a href="/admin/staff-edit.php?id=<?= $u['id']; ?>" class="flex-1 px-3 py-2 bg-brand-100 hover:bg-brand-200 text-brand-500 rounded-sm text-sm font-semibold transition-colors text-center">Edit</a>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </div>
+
+        <!-- Desktop Table View (hidden on mobile) -->
+        <div class="hidden md:block overflow-x-auto">
+            <table class="w-full text-left text-sm">
                 <thead>
                     <tr class="border-b border-brand-200">
                         <th class="px-6 py-3.5 text-sm font-semibold text-brand-300">Full Name</th>
@@ -44,7 +72,7 @@ include __DIR__ . '/../includes/header.php';
                                 </span>
                             </td>
                             <td class="px-6 py-4">
-                                <span class="px-2.5 py-1 rounded-md text-xs font-semibold uppercase tracking-wider <?= $u['status'] === 'active' ? 'bg-green-50 text-green-600 border border-green-200' : 'bg-red-50 text-red-600 border border-red-200'; ?>">
+                                <span class="px-2.5 py-1 rounded-md text-xs font-semibold uppercase tracking-wider <?= $u['status'] === 'active' ? 'bg-brand-100 text-brand-500 border border-brand-200' : 'bg-brand-100 text-brand-500 border border-brand-200'; ?>">
                                     <?= e(ucfirst($u['status'])); ?>
                                 </span>
                             </td>
@@ -56,6 +84,7 @@ include __DIR__ . '/../includes/header.php';
                     <?php endforeach; ?>
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 </div>

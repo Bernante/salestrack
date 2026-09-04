@@ -12,12 +12,29 @@ if (file_exists(__DIR__ . '/database.local.php')) {
     require_once __DIR__ . '/database.local.php';
 }
 
-if (!defined('DB_HOST')) define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1');
-if (!defined('DB_PORT')) define('DB_PORT', getenv('DB_PORT') ?: '3306');
-if (!defined('DB_NAME')) define('DB_NAME', getenv('DB_NAME') ?: 'if0_42783325_salestrack2');
-if (!defined('DB_USER')) define('DB_USER', getenv('DB_USER') ?: 'if0_42783325');
-if (!defined('DB_PASS')) define('DB_PASS', getenv('DB_PASS') !== false ? getenv('DB_PASS') : 'Patrick121603');
-if (!defined('DB_CHARSET')) define('DB_CHARSET', 'utf8mb4');
+// Database configuration - supports both MySQL and SQLite
+if (!defined('DB_TYPE')) define('DB_TYPE', getenv('DB_TYPE') ?: 'mysql'); // 'sqlite' or 'mysql'
+
+if (DB_TYPE === 'sqlite') {
+    if (!defined('DB_SQLITE_PATH')) define('DB_SQLITE_PATH', __DIR__ . '/database.sqlite');
+} else {
+    // MySQL configuration
+    if (!defined('DB_HOST')) define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1');
+    if (!defined('DB_PORT')) define('DB_PORT', getenv('DB_PORT') ?: '3306');
+    if (!defined('DB_NAME')) define('DB_NAME', getenv('DB_NAME') ?: 'if0_42796874_test');
+    if (!defined('DB_USER')) define('DB_USER', getenv('DB_USER') ?: 'if0_42796874');
+    if (!defined('DB_PASS')) define('DB_PASS', getenv('DB_PASS') !== false ? getenv('DB_PASS') : 'Patrick12162003');
+    if (!defined('DB_CHARSET')) define('DB_CHARSET', 'utf8mb4');
+}
+
+// DEBUG: Show active configuration (DISABLED FOR PRODUCTION)
+// error_log('DB_TYPE: ' . DB_TYPE);
+// if (DB_TYPE === 'mysql') {
+//     error_log('DB_HOST: ' . DB_HOST);
+//     error_log('DB_NAME: ' . DB_NAME);
+//     error_log('DB_USER: ' . DB_USER);
+// }
+// error_log('============================');
 
 /**
  * Auto-runs database migrations to ensure schema is up-to-date
@@ -66,6 +83,7 @@ function runDatabaseMigrations($pdo) {
             error_log('Database Migration: Added pieces_per_unit column to product_variants');
         }
         
+        
     } catch (Exception $e) {
         // Silently fail - the table may not exist yet on fresh installations
         error_log('Database Migration Notice: ' . $e->getMessage());
@@ -74,6 +92,7 @@ function runDatabaseMigrations($pdo) {
 
 /**
  * Returns a Singleton PDO Database Connection Instance
+ * Supports both SQLite (local development) and MySQL (production)
  * 
  * @return PDO
  * @throws Exception
@@ -82,14 +101,6 @@ function getDBConnection(): PDO {
     static $pdo = null;
 
     if ($pdo === null) {
-        $dsn = sprintf(
-            'mysql:host=%s;port=%s;dbname=%s;charset=%s',
-            DB_HOST,
-            DB_PORT,
-            DB_NAME,
-            DB_CHARSET
-        );
-
         $options = [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -97,10 +108,26 @@ function getDBConnection(): PDO {
         ];
 
         try {
-            $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
-            
-            // Run any pending migrations
-            runDatabaseMigrations($pdo);
+            if (DB_TYPE === 'sqlite') {
+                // SQLite connection (local development)
+                $dsn = 'sqlite:' . DB_SQLITE_PATH;
+                $pdo = new PDO($dsn, null, null, $options);
+                error_log('Database Connection: Using SQLite at ' . DB_SQLITE_PATH);
+            } else {
+                // MySQL connection (production)
+                $dsn = sprintf(
+                    'mysql:host=%s;port=%s;dbname=%s;charset=%s',
+                    DB_HOST,
+                    DB_PORT,
+                    DB_NAME,
+                    DB_CHARSET
+                );
+                $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
+                error_log('Database Connection: Using MySQL at ' . DB_HOST);
+                
+                // Run any pending migrations (MySQL only)
+                runDatabaseMigrations($pdo);
+            }
             
         } catch (PDOException $e) {
             error_log('Database Connection Error: ' . $e->getMessage());

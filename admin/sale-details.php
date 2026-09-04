@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $pageTitle = 'Transaction Details';
 require_once __DIR__ . '/../includes/admin-auth.php';
 
@@ -73,16 +73,33 @@ include __DIR__ . '/../includes/header.php';
         </div>
 
         <?php if ($sale['status'] === 'cancelled'): ?>
-            <div class="bg-red-50 p-4 rounded-md border border-red-200 text-sm space-y-1">
-                <span class="font-bold text-red-700 uppercase tracking-wider block">Order Cancelled Record</span>
-                <p class="text-red-600 font-medium">This transaction has been marked as cancelled.</p>
+            <div class="bg-brand-100 p-4 rounded-md border border-brand-200 text-sm space-y-1">
+                <span class="font-bold text-brand-700 uppercase tracking-wider block">Order Cancelled Record</span>
+                <p class="text-brand-500 font-medium">This transaction has been marked as cancelled.</p>
             </div>
         <?php endif; ?>
 
         <div>
             <h3 class="text-sm font-semibold text-brand-700 uppercase tracking-wider mb-3">Purchased Items Breakdown</h3>
             <div class="overflow-x-auto border border-brand-200 rounded-md">
-                <table class="w-full text-left text-sm min-w-full">
+                <!-- Mobile Card View (hidden on md+) -->
+                <div class="md:hidden space-y-3 p-4">
+                    <?php if (empty($items)): ?>
+                        <div class="text-center text-sm text-brand-300 italic py-6">No items in this sale.</div>
+                    <?php else: ?>
+                        <?php foreach ($items as $item): ?>
+                            <div class="border border-brand-100 rounded-md p-3 space-y-2">
+                                <div class="flex justify-between gap-2">
+                                    <div><div class="font-bold text-brand-700 text-sm"><?= e($item["product_name"]); ?></div><div class="text-xs text-brand-300"><?= e($item["variant_name"]); ?></div></div>
+                                    <div class="text-right"><div class="text-xs text-brand-300">Qty: <?= $item["quantity"]; ?></div><div class="font-bold text-brand-500 text-sm">₱<?= number_format($item["subtotal"], 2); ?></div></div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+                <!-- Desktop Table View (hidden on mobile) -->
+                <div class="hidden md:block">
+                <table class="w-full text-left text-sm">
                     <thead>
                         <tr class="border-b border-brand-200">
                             <th class="px-4 sm:px-5 py-3 text-xs sm:text-sm font-semibold text-brand-300">Product</th>
@@ -104,6 +121,7 @@ include __DIR__ . '/../includes/header.php';
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
 

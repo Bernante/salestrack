@@ -51,18 +51,13 @@ class SaleQueries {
     /**
      * Get all sales with optional filtering and search
      */
-    public function getAllSales(string $search = '', string $status = ''): array {
+    public function getAllSales(string $search = ''): array {
         $where = [];
         $params = [];
         
         if (!empty($search)) {
             $where[] = "(s.transaction_number LIKE :search OR u.name LIKE :search)";
             $params[':search'] = '%' . $search . '%';
-        }
-        
-        if (!empty($status) && in_array($status, ['completed', 'cancelled'])) {
-            $where[] = "s.status = :status";
-            $params[':status'] = $status;
         }
         
         $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
@@ -82,8 +77,8 @@ class SaleQueries {
     public function getSalesByDateRange(string $dateFrom, string $dateTo): array {
         $sql = "SELECT s.*, u.name AS staff_name FROM sales s
                 JOIN users u ON s.user_id = u.id
-                WHERE DATE(s.sale_date) >= :from AND DATE(s.sale_date) <= :to
-                ORDER BY s.sale_date DESC";
+                WHERE DATE(s.created_at) >= :from AND DATE(s.created_at) <= :to
+                ORDER BY s.created_at DESC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([':from' => $dateFrom, ':to' => $dateTo]);
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -94,8 +89,8 @@ class SaleQueries {
      */
     public function createSale(array $data): int {
         $sql = "INSERT INTO sales (transaction_number, user_id, sale_date, total_amount, 
-                amount_paid, change_amount, payment_status, status)
-                VALUES (:txn, :user_id, :date, :total, :paid, :change, :payment_status, :status)";
+                amount_paid, change_amount, payment_status)
+                VALUES (:txn, :user_id, :date, :total, :paid, :change, :payment_status)";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
@@ -105,8 +100,7 @@ class SaleQueries {
             ':total' => $data['total_amount'],
             ':paid' => $data['amount_paid'],
             ':change' => $data['change_amount'],
-            ':payment_status' => 'paid',
-            ':status' => 'completed'
+            ':payment_status' => 'paid'
         ]);
         
         return (int)$this->db->lastInsertId();
@@ -132,15 +126,6 @@ class SaleQueries {
     }
     
     /**
-     * Cancel a sale (soft delete)
-     */
-    public function cancelSale(int $saleId): bool {
-        $sql = "UPDATE sales SET status = 'cancelled' WHERE id = :id";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([':id' => $saleId]);
-    }
-    
-    /**
      * Get variants by IDs for sale validation
      */
     public function getVariantsByIds(array $variantIds): array {
@@ -148,8 +133,8 @@ class SaleQueries {
         
         $placeholders = implode(',', array_fill(0, count($variantIds), '?'));
         $sql = "SELECT pv.id, pv.product_id, pv.variant_name, pv.price, 
-                pv.selling_unit, pv.pieces_per_unit, pv.status AS variant_status,
-                p.name AS product_name, p.status AS product_status
+                pv.selling_unit, pv.pieces_per_unit,
+                p.name AS product_name
                 FROM product_variants pv
                 JOIN products p ON pv.product_id = p.id
                 WHERE pv.id IN ($placeholders)";

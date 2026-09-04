@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $pageTitle = 'New Sale';
 require_once __DIR__ . '/../includes/staff-auth.php';
 require_once __DIR__ . '/../includes/csrf.php';
@@ -7,9 +7,9 @@ $db = getDBConnection();
 $rows = $db->query('
     SELECT p.id AS product_id, p.name AS product_name, p.image AS product_image,
            pv.id AS variant_id, pv.variant_name, COALESCE(pv.quantity, 1) AS quantity, 
-           pv.selling_unit, pv.pieces_per_unit, pv.price, pv.status AS variant_status
+           pv.selling_unit, pv.pieces_per_unit, pv.price
     FROM products p JOIN product_variants pv ON p.id = pv.product_id
-    WHERE p.status = "active" AND pv.status = "active"
+    WHERE p.is_active = 1 AND pv.is_active = 1
     ORDER BY p.name ASC, pv.price ASC
 ')->fetchAll();
 
@@ -39,8 +39,7 @@ foreach ($rows as $r) {
         'selling_quantity'  => intval($r['quantity'] ?? 1),
         'selling_unit'      => $r['selling_unit'] ?? 'piece',
         'pieces_per_unit'   => intval($r['pieces_per_unit'] ?? 1),
-        'price'             => floatval($r['price']),
-        'status'            => $r['variant_status']
+        'price'             => floatval($r['price'])
     ];
 }
 $productsJson = json_encode(array_values($productsMap));
@@ -58,7 +57,7 @@ include __DIR__ . '/../includes/header.php';
     <div class="bg-brand-500 text-white rounded-md p-6 sm:p-8 text-center space-y-6 shadow-card">
         <div class="w-16 h-16 rounded-md bg-white text-brand-500 flex items-center justify-center font-bold text-3xl mx-auto">✓</div>
         <div>
-            <h2 class="text-3xl font-bold tracking-tight">SALE COMPLETED!</h2>
+            <h2 class="text-2xl font-bold tracking-tight">SALE COMPLETED!</h2>
             <p class="text-white/80 text-sm mt-1">Transaction recorded and saved to store records.</p>
         </div>
         
@@ -77,7 +76,7 @@ include __DIR__ . '/../includes/header.php';
             </div>
             <div class="flex justify-between text-base pt-1">
                 <span class="font-bold text-brand-700">Change Due:</span>
-                <span class="font-bold text-green-600">₱<?= number_format($completedSale['change_amount'], 2); ?></span>
+                <span class="font-bold text-brand-700">₱<?= number_format($completedSale['change_amount'], 2); ?></span>
             </div>
         </div>
 
@@ -128,7 +127,7 @@ include __DIR__ . '/../includes/header.php';
                                 <?= e($p['name']); ?>
                             </h3>
                             <p class="text-xs font-semibold text-brand-300">
-                                <?= e($firstVariantName); ?> • <span class="font-bold text-green-600">₱<?= number_format($firstPrice, 2); ?></span>
+                                <?= e($firstVariantName); ?> • <span class="font-bold text-brand-700">₱<?= number_format($firstPrice, 2); ?></span>
                             </p>
                             <?php if ($vCount > 1): ?>
                                 <p class="text-[11px] font-semibold text-brand-500 bg-brand-100 rounded-md py-0.5 px-2 inline-block border border-brand-200">
@@ -161,7 +160,15 @@ include __DIR__ . '/../includes/header.php';
                 </div>
 
                 <div class="overflow-x-auto border border-brand-200 rounded-md">
-                    <table class="w-full text-left text-sm">
+                    <!-- Mobile Card View (hidden on md+) -->
+                    <div class="md:hidden space-y-3 p-4">
+                        <div id="cartCardBody"></div>
+                        <div id="emptyCartCardRow" class="text-center text-brand-300 italic py-6">No products selected yet.</div>
+                    </div>
+
+                    <!-- Desktop Table View (hidden on mobile) -->
+                    <div class="hidden md:block">
+                        <table class="w-full text-left text-sm">
                         <thead class="bg-brand-50 text-xs text-brand-300 font-semibold border-b border-brand-200">
                             <tr>
                                 <th class="p-2">Item</th>
@@ -180,17 +187,21 @@ include __DIR__ . '/../includes/header.php';
                             </tr>
                         </tbody>
                     </table>
+                    </div>
                 </div>
                 <div class="bg-brand-50 p-4 rounded-md border border-brand-200 space-y-3">
                     <div class="flex justify-between items-center">
                         <span class="text-sm font-bold text-brand-700">TOTAL AMOUNT:</span>
-                        <span id="totalAmountDisplay" class="text-3xl font-extrabold text-brand-500">₱0.00</span>
+                        <span id="totalAmountDisplay" class="text-2xl font-extrabold text-brand-500">₱0.00</span>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-brand-200">
                         <div>
                             <label for="amountPaidInput" class="block text-xs font-semibold text-brand-700 mb-1">Amount Paid (₱) *</label>
                             <input type="number" id="amountPaidInput" name="amount_paid" step="0.01" min="0" placeholder="0.00" required class="w-full p-2.5 rounded-md border border-brand-200 font-bold text-lg text-brand-700 focus:outline-none focus:border-brand-500">
+                            <div id="paymentErrorBanner" class="hidden mt-2 p-2 bg-red-50 border border-red-300 rounded-md">
+                                <p id="paymentErrorMessage" class="text-red-600 text-sm font-bold"></p>
+                            </div>
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-brand-700 mb-1">Change</label>
@@ -225,6 +236,7 @@ include __DIR__ . '/../includes/header.php';
                 <div id="modalVariantList" class="space-y-2 max-h-48 overflow-y-auto pr-1">
                     <!-- Dynamic variants pills -->
                 </div>
+                <p id="variantValidationMessage" class="hidden text-red-600 text-sm font-bold">Please select a variant</p>
             </div>
 
             <div class="space-y-2 border-t border-brand-200 pt-3">

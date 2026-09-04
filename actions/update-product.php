@@ -20,7 +20,6 @@ if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
 
 $productId = intval($_POST['product_id'] ?? 0);
 $productName = trim($_POST['name'] ?? '');
-$productStatus = ($_POST['status'] ?? 'active') === 'active' ? 'active' : 'inactive';
 
 if ($productId <= 0 || empty($productName)) {
     $_SESSION['flash_error'] = 'Invalid product data.';
@@ -45,10 +44,9 @@ try {
 
     // 1. Update Product Details
     if ($newImagePath !== null) {
-        $stmt = $db->prepare('UPDATE products SET name = :name, status = :status, image = :image WHERE id = :id');
+        $stmt = $db->prepare('UPDATE products SET name = :name, image = :image WHERE id = :id');
         $stmt->execute([
             ':name'   => $productName,
-            ':status' => $productStatus,
             ':image'  => $newImagePath,
             ':id'     => $productId
         ]);
@@ -60,27 +58,73 @@ try {
             }
         }
     } else {
-        $stmt = $db->prepare('UPDATE products SET name = :name, status = :status WHERE id = :id');
+        $stmt = $db->prepare('UPDATE products SET name = :name WHERE id = :id');
         $stmt->execute([
             ':name'   => $productName,
-            ':status' => $productStatus,
             ':id'     => $productId
         ]);
+    }
+
+    // 1.5 SOFT-DELETE MARKED VARIANTS (set is_active = 0)
+    // BUT: Prevent removing the last active variant for a product
+    // First, fetch current active variants to validate the deletion
+    $stmtGetVariants = $db->prepare('SELECT id FROM product_variants WHERE product_id = :pid AND is_active = 1');
+    $stmtGetVariants->execute([':pid' => $productId]);
+    $variants = $stmtGetVariants->fetchAll();
+    
+    // Handle both old format (deleted_variant_id[]) and new format (removed_variant_ids comma-separated)
+    $deletedVariantIds = [];
+    
+    // Check for new format (comma-separated string)
+    if (!empty($_POST['removed_variant_ids'])) {
+        $idsString = $_POST['removed_variant_ids'];
+        $deletedVariantIds = array_filter(array_map('intval', explode(',', $idsString)));
+    } 
+    // Fallback to old format (array)
+    elseif (!empty($_POST['deleted_variant_id'])) {
+        $deletedVariantIds = $_POST['deleted_variant_id'] ?? [];
+        if (is_array($deletedVariantIds)) {
+            $deletedVariantIds = array_map('intval', $deletedVariantIds);
+        }
+    }
+    
+    if (!empty($deletedVariantIds)) {
+        // Count how many active variants would remain after deletion
+        $remainingVariants = count($variants) - count($deletedVariantIds);
+        
+        // If this would result in 0 active variants, reject the request
+        if ($remainingVariants <= 0) {
+            http_response_code(400);
+            die(json_encode([
+                'success' => false,
+                'message' => 'Cannot remove the last variant. A product must have at least one active variant. Use the "Delete Product" button to remove the entire product.'
+            ]));
+        }
+        
+        $stmtSoftDeleteVariant = $db->prepare('UPDATE product_variants SET is_active = 0 WHERE id = :vid AND product_id = :pid');
+        foreach ($deletedVariantIds as $vid) {
+            $vid = intval($vid);
+            if ($vid > 0) {
+                $stmtSoftDeleteVariant->execute([
+                    ':vid' => $vid,
+                    ':pid' => $productId
+                ]);
+            }
+        }
     }
 
     // 2. Update Existing Variants with selling_unit and pieces_per_unit
     // Support both Admin format (variant_id[], variant_name[], etc.) and Staff format (existing_variants[id][name], etc.)
     
-    $stmtUpdateVariant = $db->prepare('UPDATE product_variants SET variant_name = :vname, selling_unit = :unit, pieces_per_unit = :pieces, price = :price, status = :vstatus WHERE id = :vid AND product_id = :pid');
+    $stmtUpdateVariant = $db->prepare('UPDATE product_variants SET variant_name = :vname, selling_unit = :unit, pieces_per_unit = :pieces, price = :price WHERE id = :vid AND product_id = :pid');
     
-    // Handle Admin format: variant_id[], variant_name[], selling_unit[], pieces_per_unit[], variant_price[], variant_status[]
+    // Handle Admin format: variant_id[], variant_name[], selling_unit[], pieces_per_unit[], variant_price[]
     if (!empty($_POST['variant_id']) && is_array($_POST['variant_id'])) {
         $variantIds = $_POST['variant_id'];
         $variantNames = $_POST['variant_name'] ?? [];
         $sellingUnits = $_POST['selling_unit'] ?? [];
         $piecesPerUnit = $_POST['pieces_per_unit'] ?? [];
         $variantPrices = $_POST['variant_price'] ?? [];
-        $variantStatuses = $_POST['variant_status'] ?? [];
 
         foreach ($variantIds as $idx => $vid) {
             $vid = intval($vid);
@@ -90,7 +134,6 @@ try {
             $vUnit = trim($sellingUnits[$idx] ?? 'piece');
             $vPieces = max(1, intval($piecesPerUnit[$idx] ?? 1));
             $vPrice = max(0, floatval($variantPrices[$idx] ?? 0));
-            $vStatus = ($variantStatuses[$idx] ?? 'active') === 'active' ? 'active' : 'inactive';
 
             if (!empty($vName)) {
                 $stmtUpdateVariant->execute([
@@ -98,7 +141,6 @@ try {
                     ':unit'     => $vUnit,
                     ':pieces'   => $vPieces,
                     ':price'    => $vPrice,
-                    ':vstatus'  => $vStatus,
                     ':vid'      => $vid,
                     ':pid'      => $productId
                 ]);
@@ -116,7 +158,6 @@ try {
             $vUnit = trim($variantData['selling_unit'] ?? 'piece');
             $vPieces = max(1, intval($variantData['pieces_per_unit'] ?? 1));
             $vPrice = max(0, floatval($variantData['price'] ?? 0));
-            $vStatus = ($variantData['status'] ?? 'active') === 'active' ? 'active' : 'inactive';
 
             if (!empty($vName)) {
                 $stmtUpdateVariant->execute([
@@ -124,7 +165,6 @@ try {
                     ':unit'     => $vUnit,
                     ':pieces'   => $vPieces,
                     ':price'    => $vPrice,
-                    ':vstatus'  => $vStatus,
                     ':vid'      => $vid,
                     ':pid'      => $productId
                 ]);
@@ -139,7 +179,7 @@ try {
     $newVariantPrices = $_POST['new_variant_price'] ?? [];
 
     if (is_array($newVariantNames)) {
-        $stmtInsertVariant = $db->prepare('INSERT INTO product_variants (product_id, variant_name, selling_unit, pieces_per_unit, price, status) VALUES (:pid, :vname, :unit, :pieces, :price, "active")');
+        $stmtInsertVariant = $db->prepare('INSERT INTO product_variants (product_id, variant_name, selling_unit, pieces_per_unit, price) VALUES (:pid, :vname, :unit, :pieces, :price)');
         foreach ($newVariantNames as $idx => $nName) {
             $nNameClean = trim($nName);
             if (empty($nNameClean)) continue;

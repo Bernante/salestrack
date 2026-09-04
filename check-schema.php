@@ -1,8 +1,17 @@
 <?php
-require 'config/database.php';
+require_once 'config/database.php';
 $db = getDBConnection();
+
+echo "product_variants table structure:\n";
+echo str_repeat("-", 60)."\n";
 $cols = $db->query('DESCRIBE product_variants')->fetchAll();
-echo "Current product_variants columns:\n";
 foreach($cols as $c) {
-    echo $c['Field'] . ' (' . $c['Type'] . ')' . PHP_EOL;
+    echo $c['Field'] . " - " . $c['Type'] . " (Null: " . $c['Null'] . ")\n";
+}
+
+echo "\n\nproducts table structure:\n";
+echo str_repeat("-", 60)."\n";
+$cols = $db->query('DESCRIBE products')->fetchAll();
+foreach($cols as $c) {
+    echo $c['Field'] . " - " . $c['Type'] . " (Null: " . $c['Null'] . ")\n";
 }

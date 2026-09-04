@@ -1,6 +1,7 @@
 <?php
 $pageTitle = 'Transaction Details';
 require_once __DIR__ . '/../includes/staff-auth.php';
+require_once __DIR__ . '/../includes/csrf.php';
 
 $saleId = intval($_GET['id'] ?? 0);
 $userId = $_SESSION['user_id'];
@@ -73,7 +74,7 @@ include __DIR__ . '/../includes/header.php';
             </div>
             <div>
                 <span class="block text-xs font-semibold text-brand-300 uppercase tracking-wider">Sale Date</span>
-                <span class="font-semibold text-brand-700 text-sm"><?= date('M d, Y', strtotime($sale['sale_date'])); ?></span>
+                <span class="font-semibold text-brand-700 text-sm"><?= date('M d, Y', strtotime($sale['created_at'])); ?></span>
             </div>
             <div>
                 <span class="block text-xs font-semibold text-brand-300 uppercase tracking-wider">Recorded Time</span>
@@ -101,7 +102,31 @@ include __DIR__ . '/../includes/header.php';
         <div>
             <h3 class="text-sm font-semibold text-brand-700 uppercase tracking-wider mb-3">Purchased Items Breakdown</h3>
             <div class="overflow-x-auto border border-brand-200 rounded-md">
-                <table class="w-full text-left text-sm min-w-[500px]">
+                <!-- Mobile Card View (hidden on md+) -->
+                <div class="md:hidden p-4 space-y-3">
+                    <?php if (empty($items)): ?>
+                        <div class="text-center text-sm text-brand-300 italic py-6">No items in this sale.</div>
+                    <?php else: ?>
+                        <?php foreach ($items as $item): ?>
+                            <div class="border border-brand-100 rounded-md p-3 space-y-2 hover:bg-brand-50 transition-colors">
+                                <div class="flex items-start justify-between gap-2">
+                                    <div class="flex-1">
+                                        <div class="font-bold text-brand-700 text-sm"><?= e($item['product_name']); ?></div>
+                                        <div class="text-xs text-brand-300"><?= e($item['variant_name']); ?></div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-xs text-brand-300">Qty: <?= $item['quantity']; ?></div>
+                                        <div class="font-bold text-brand-500 text-sm">₱<?= number_format($item['subtotal'], 2); ?></div>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+
+                <!-- Desktop Table View (hidden on mobile) -->
+                <div class="hidden md:block">
+                    <table class="w-full text-left text-sm">
                     <thead>
                         <tr class="border-b border-brand-200">
                             <th class="px-5 py-3 text-sm font-semibold text-brand-300">Product</th>
@@ -123,6 +148,7 @@ include __DIR__ . '/../includes/header.php';
                         <?php endforeach; ?>
                     </tbody>
                 </table>
+                </div>
             </div>
         </div>
 
@@ -160,15 +186,17 @@ include __DIR__ . '/../includes/header.php';
 </div>
 
 <script>
-function openStaffCancelModal(saleId, txnNum) {
+// DIAGNOSTIC: Modified 2026-09-02T23:20:06Z - FIXED with window object assignment
+// Define modal functions at global scope to ensure they're available when onclick handlers are evaluated
+window.openStaffCancelModal = function(saleId, txnNum) {
     document.getElementById('modalSaleId').value = saleId;
     document.getElementById('modalTxnNum').textContent = txnNum;
     document.getElementById('staffCancelModal').classList.remove('hidden');
-}
+};
 
-function closeStaffCancelModal() {
+window.closeStaffCancelModal = function() {
     document.getElementById('staffCancelModal').classList.add('hidden');
-}
+};
 </script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

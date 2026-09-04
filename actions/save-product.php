@@ -56,7 +56,7 @@ try {
     $db->beginTransaction();
 
     // 1. Insert product with image
-    $stmt = $db->prepare('INSERT INTO products (name, image, status) VALUES (:name, :image, "active")');
+    $stmt = $db->prepare('INSERT INTO products (name, image) VALUES (:name, :image)');
     $stmt->execute([
         ':name'  => $productName,
         ':image' => $imagePath
@@ -64,7 +64,7 @@ try {
     $productId = $db->lastInsertId();
 
     // 2. Insert variants with selling_unit and pieces_per_unit
-    $stmtVariant = $db->prepare('INSERT INTO product_variants (product_id, variant_name, quantity, selling_unit, pieces_per_unit, price, status) VALUES (:product_id, :variant_name, :quantity, :selling_unit, :pieces_per_unit, :price, "active")');
+    $stmtVariant = $db->prepare('INSERT INTO product_variants (product_id, variant_name, quantity, selling_unit, pieces_per_unit, price) VALUES (:product_id, :variant_name, :quantity, :selling_unit, :pieces_per_unit, :price)');
 
     foreach ($variantNames as $index => $vName) {
         $vNameClean = trim($vName);

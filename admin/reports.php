@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $pageTitle = 'Sales Reports';
 require_once __DIR__ . '/../includes/admin-auth.php';
 
@@ -93,7 +93,7 @@ include __DIR__ . '/../includes/header.php';
                 <i class="fas fa-ellipsis-h text-brand-300"></i>
             </div></div>
             <div class="w-full p-6"><h4 class="font-bold text-brand-500 text-2xl mb-4">₱<?= number_format($totalSales, 2); ?></h4>
-                <div class="flex items-center"><span class="items-center font-semibold inline-flex justify-center px-2 py-1 rounded-md bg-green-50 text-green-600 mr-2 text-sm"><i class="fas mr-2 fa-chart-line"></i>Total</span><p class="font-semibold text-sm text-brand-300">Gross revenue</p></div>
+                <div class="flex items-center"><span class="items-center font-semibold inline-flex justify-center px-2 py-1 rounded-md bg-brand-100 text-brand-700 mr-2 text-sm"><i class="fas mr-2 fa-chart-line"></i>Total</span><p class="font-semibold text-sm text-brand-300">Gross revenue</p></div>
             </div>
         </div>
         <div class="w-full rounded-md border border-brand-200 bg-white shadow-card">
@@ -102,7 +102,7 @@ include __DIR__ . '/../includes/header.php';
                 <i class="fas fa-ellipsis-h text-brand-300"></i>
             </div></div>
             <div class="w-full p-6"><h4 class="font-bold text-brand-500 text-2xl mb-4"><?= number_format($totalTxns); ?></h4>
-                <div class="flex items-center"><span class="items-center font-semibold inline-flex justify-center px-2 py-1 rounded-md bg-green-50 text-green-600 mr-2 text-sm"><i class="fas mr-2 fa-check"></i>Completed</span><p class="font-semibold text-sm text-brand-300">Receipts processed</p></div>
+                <div class="flex items-center"><span class="items-center font-semibold inline-flex justify-center px-2 py-1 rounded-md bg-brand-100 text-brand-700 mr-2 text-sm"><i class="fas mr-2 fa-check"></i>Completed</span><p class="font-semibold text-sm text-brand-300">Receipts processed</p></div>
             </div>
         </div>
     </div>
@@ -116,7 +116,7 @@ include __DIR__ . '/../includes/header.php';
                         <span class="flex items-center text-brand-500 bg-brand-100 h-9 justify-center mr-2 rounded-sm w-9"><i class="fas fa-chart-area"></i></span>
                         Sales Trends
                     </h5>
-                    <span id="salesTrendTotal" class="hidden sm:inline-flex items-center font-semibold px-2.5 py-1 rounded-md bg-green-50 text-green-600 text-sm">
+                    <span id="salesTrendTotal" class="hidden sm:inline-flex items-center font-semibold px-2.5 py-1 rounded-md bg-brand-100 text-brand-700 text-sm">
                         ₱0.00
                     </span>
                 </div>
@@ -139,7 +139,7 @@ include __DIR__ . '/../includes/header.php';
         <div class="w-full p-4 sm:p-6 pt-2 sm:pt-4">
             <!-- Mobile total badge -->
             <div class="sm:hidden mb-3">
-                <span id="salesTrendTotalMobile" class="inline-flex items-center font-semibold px-2.5 py-1 rounded-md bg-green-50 text-green-600 text-sm">
+                <span id="salesTrendTotalMobile" class="inline-flex items-center font-semibold px-2.5 py-1 rounded-md bg-brand-100 text-brand-700 text-sm">
                     ₱0.00
                 </span>
                 <span id="salesTrendTxnsMobile" class="inline-flex items-center font-semibold px-2.5 py-1 rounded-md bg-brand-100 text-brand-500 text-sm ml-1">
@@ -156,7 +156,31 @@ include __DIR__ . '/../includes/header.php';
             <h2 class="text-base font-bold text-brand-700">All Product Variant Sales</h2>
         </div>
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm min-w-[500px]">
+            <!-- Mobile Card View (hidden on md+) -->
+            <div class="md:hidden space-y-3 p-4">
+                <?php if (empty($variantBreakdown)): ?>
+                    <div class="text-center text-sm text-brand-300 italic py-6">No variant sales data for selected period.</div>
+                <?php else: ?>
+                    <?php foreach ($variantBreakdown as $vb): ?>
+                        <div class="border border-brand-100 rounded-md p-4 space-y-2 hover:bg-brand-50 transition-colors">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex-1">
+                                    <div class="font-semibold text-brand-700"><?= e($vb['product_name']); ?></div>
+                                    <div class="text-xs text-brand-300"><?= e($vb['variant_name']); ?></div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="font-bold text-brand-500">₱<?= number_format($vb['total_revenue'], 2); ?></div>
+                                    <div class="text-xs text-brand-300"><?= $vb['total_qty_sold']; ?> sold</div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </div>
+
+            <!-- Desktop Table View (hidden on mobile) -->
+            <div class="hidden md:block overflow-x-auto">
+                <table class="w-full text-left text-sm">
                 <thead>
                     <tr class="border-b border-brand-200">
                         <th class="px-6 py-3 text-sm font-semibold text-brand-300">Product Name</th>
@@ -180,6 +204,7 @@ include __DIR__ . '/../includes/header.php';
                     <?php endif; ?>
                 </tbody>
             </table>
+            </div>
         </div>
     </div>
 </div>

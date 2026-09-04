@@ -4,24 +4,22 @@ require_once __DIR__ . '/../includes/csrf.php';
 
 requireLogin();
 
-$redirectUrl = $_SERVER['HTTP_REFERER'] ?? '/staff/sales.php';
-
 // Strict backend role enforcement: Only Staff can cancel orders
 if (($_SESSION['user_role'] ?? '') !== 'staff') {
-    http_response_code(403);
-    $_SESSION['flash_error'] = 'Access Denied: Admins are not authorized to cancel orders. Only Staff can cancel orders.';
-    header('Location: /admin/sales.php');
+    $_SESSION['flash_error'] = 'Access Denied: Only Staff can cancel orders.';
+    header('Location: /staff/sales.php');
     exit;
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ' . $redirectUrl);
+    $_SESSION['flash_error'] = 'Invalid request method.';
+    header('Location: /staff/sales.php');
     exit;
 }
 
 if (!validateCsrfToken($_POST['csrf_token'] ?? '')) {
     $_SESSION['flash_error'] = 'Invalid security request token.';
-    header('Location: ' . $redirectUrl);
+    header('Location: /staff/sales.php');
     exit;
 }
 
@@ -29,7 +27,7 @@ $saleId = intval($_POST['sale_id'] ?? 0);
 
 if ($saleId <= 0) {
     $_SESSION['flash_error'] = 'Invalid transaction ID.';
-    header('Location: ' . $redirectUrl);
+    header('Location: /staff/sales.php');
     exit;
 }
 
@@ -43,26 +41,26 @@ try {
 
     if (!$sale) {
         $_SESSION['flash_error'] = 'Transaction not found.';
-        header('Location: ' . $redirectUrl);
+        header('Location: /staff/sales.php');
         exit;
     }
 
     // Staff ownership check: Staff can only cancel transactions recorded by themselves
     if ($sale['user_id'] != $_SESSION['user_id']) {
-        $_SESSION['flash_error'] = 'Unauthorized access: You can only cancel transactions recorded by your account.';
-        header('Location: ' . $redirectUrl);
+        $_SESSION['flash_error'] = 'You can only cancel transactions recorded by your account.';
+        header('Location: /staff/sales.php');
         exit;
     }
 
     if ($sale['status'] === 'cancelled') {
         $_SESSION['flash_error'] = 'This transaction is already cancelled.';
-        header('Location: ' . $redirectUrl);
+        header('Location: /staff/sale-details.php?id=' . $saleId);
         exit;
     }
 
     if ($sale['status'] !== 'completed') {
         $_SESSION['flash_error'] = 'Transaction is not eligible for cancellation.';
-        header('Location: ' . $redirectUrl);
+        header('Location: /staff/sale-details.php?id=' . $saleId);
         exit;
     }
 
@@ -78,15 +76,12 @@ try {
     ]);
 
     $_SESSION['flash_success'] = 'Transaction ' . $sale['transaction_number'] . ' was successfully cancelled.';
-    header('Location: ' . $redirectUrl);
+    header('Location: /staff/sale-details.php?id=' . $saleId);
     exit;
 
 } catch (Exception $e) {
     error_log('Cancel Sale Error: ' . $e->getMessage());
     $_SESSION['flash_error'] = 'Failed to cancel sale: ' . $e->getMessage();
-    header('Location: ' . $redirectUrl);
+    header('Location: /staff/sale-details.php?id=' . $saleId);
     exit;
 }
-
-
-

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $pageTitle = 'Add New Product';
 require_once __DIR__ . '/../includes/admin-auth.php';
 require_once __DIR__ . '/../includes/csrf.php';
@@ -71,7 +71,7 @@ include __DIR__ . '/../includes/header.php';
                         </div>
                     </div>
                     <div class="sm:col-span-2 text-right sm:text-center pt-2 sm:pt-4">
-                        <button type="button" class="remove-variant-btn text-red-500 hover:text-red-700 text-lg font-bold p-1" style="display:none;" title="Remove Variant">&times;</button>
+                        <button type="button" class="remove-variant-btn text-brand-500 hover:text-brand-700 text-lg font-bold p-1" style="display:none;" title="Remove Variant">&times;</button>
                     </div>
                 </div>
             </div>

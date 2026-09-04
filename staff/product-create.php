@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $pageTitle = 'Add New Product';
 require_once __DIR__ . '/../includes/staff-auth.php';
 require_once __DIR__ . '/../includes/csrf.php';
@@ -48,11 +48,11 @@ include __DIR__ . '/../includes/header.php';
                 <div class="grid grid-cols-1 sm:grid-cols-12 gap-3 items-center variant-row bg-brand-50 p-3 rounded-md border border-brand-200">
                     <div class="sm:col-span-4">
                         <label class="block text-xs font-semibold text-brand-700 mb-1">Product Variant *</label>
-                        <input type="text" name="variant_name[]" placeholder="Variant Name (e.g. Small, Small Tray, Bulk)" required class="w-full px-3.5 py-2 rounded-md border border-brand-200 text-sm text-brand-700 focus:outline-none focus:border-brand-500">
+                        <input type="text" name="variant_name[]" placeholder="Variant Name (e.g. Small, Small Tray, Bulk)" required class="w-full px-4 py-2.5 rounded-md border border-brand-200 text-sm text-brand-700 focus:outline-none focus:border-brand-500">
                     </div>
                     <div class="sm:col-span-2">
                         <label class="block text-xs font-semibold text-brand-700 mb-1">Selling Unit *</label>
-                        <select name="selling_unit[]" class="w-full px-3.5 py-2 rounded-md border border-brand-200 text-sm text-brand-700 focus:outline-none focus:border-brand-500 selling-unit-select" required>
+                        <select name="selling_unit[]" class="w-full px-4 py-2.5 rounded-md border border-brand-200 text-sm text-brand-700 focus:outline-none focus:border-brand-500 selling-unit-select" required>
                             <option value="piece">Piece</option>
                             <option value="half_tray">Half Tray</option>
                             <option value="tray">Tray</option>
@@ -61,17 +61,17 @@ include __DIR__ . '/../includes/header.php';
                     </div>
                     <div class="sm:col-span-2">
                         <label class="block text-xs font-semibold text-brand-700 mb-1">Selling Qty (pcs) *</label>
-                        <input type="number" min="1" step="1" name="pieces_per_unit[]" value="1" placeholder="Qty (e.g. 1, 30)" required class="w-full px-3.5 py-2 rounded-md border border-brand-200 text-sm text-brand-700 focus:outline-none focus:border-brand-500 pieces-input">
+                        <input type="number" min="1" step="1" name="pieces_per_unit[]" value="1" placeholder="Qty (e.g. 1, 30)" required class="w-full px-4 py-2.5 rounded-md border border-brand-200 text-sm text-brand-700 focus:outline-none focus:border-brand-500 pieces-input">
                     </div>
                     <div class="sm:col-span-2">
                         <label class="block text-xs font-semibold text-brand-700 mb-1">Price (₱) *</label>
                         <div class="relative">
                             <span class="absolute left-3 top-2 text-brand-300 text-sm">₱</span>
-                            <input type="number" step="0.01" min="0" name="variant_price[]" placeholder="0.00" required class="w-full pl-7 pr-3 py-2 rounded-md border border-brand-200 text-sm text-brand-700 focus:outline-none focus:border-brand-500">
+                            <input type="number" step="0.01" min="0" name="variant_price[]" placeholder="0.00" required class="w-full pl-7 pr-4 py-2.5 rounded-md border border-brand-200 text-sm text-brand-700 focus:outline-none focus:border-brand-500">
                         </div>
                     </div>
                     <div class="sm:col-span-2 text-right sm:text-center pt-2 sm:pt-4">
-                        <button type="button" class="remove-variant-btn text-red-500 hover:text-red-700 text-lg font-bold p-1" style="display:none;" title="Remove Variant">&times;</button>
+                        <button type="button" class="remove-variant-btn text-brand-500 hover:text-brand-700 text-lg font-bold p-1" style="display:none;" title="Remove Variant">&times;</button>
                     </div>
                 </div>
             </div>

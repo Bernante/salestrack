@@ -14,10 +14,10 @@ class ProductQueries {
     }
     
     /**
-     * Get all active products
+     * Get all products
      */
     public function getAllProducts(): array {
-        $sql = "SELECT * FROM products WHERE status = 'active' ORDER BY name ASC";
+        $sql = "SELECT * FROM products ORDER BY name ASC";
         $stmt = $this->db->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
@@ -68,12 +68,11 @@ class ProductQueries {
      * Create product
      */
     public function createProduct(array $data): int {
-        $sql = "INSERT INTO products (name, image, status) VALUES (:name, :image, :status)";
+        $sql = "INSERT INTO products (name, image) VALUES (:name, :image)";
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
             ':name' => $data['name'],
-            ':image' => $data['image'] ?? null,
-            ':status' => 'active'
+            ':image' => $data['image'] ?? null
         ]);
         return (int)$this->db->lastInsertId();
     }
@@ -83,8 +82,8 @@ class ProductQueries {
      */
     public function createVariant(array $data): int {
         $sql = "INSERT INTO product_variants (product_id, variant_name, quantity, 
-                selling_unit, pieces_per_unit, price, status)
-                VALUES (:pid, :name, :qty, :unit, :pieces, :price, :status)";
+                selling_unit, pieces_per_unit, price)
+                VALUES (:pid, :name, :qty, :unit, :pieces, :price)";
         
         $stmt = $this->db->prepare($sql);
         $stmt->execute([
@@ -93,8 +92,7 @@ class ProductQueries {
             ':qty' => $data['quantity'] ?? 1,
             ':unit' => $data['selling_unit'] ?? 'piece',
             ':pieces' => $data['pieces_per_unit'] ?? 1,
-            ':price' => $data['price'] ?? 0,
-            ':status' => 'active'
+            ':price' => $data['price'] ?? 0
         ]);
         return (int)$this->db->lastInsertId();
     }
@@ -113,10 +111,6 @@ class ProductQueries {
         if (isset($data['image'])) {
             $updates[] = 'image = :image';
             $params[':image'] = $data['image'];
-        }
-        if (isset($data['status'])) {
-            $updates[] = 'status = :status';
-            $params[':status'] = $data['status'];
         }
         
         if (empty($updates)) return false;
@@ -156,22 +150,5 @@ class ProductQueries {
         $stmt = $this->db->prepare($sql);
         return $stmt->execute($params);
     }
-    
-    /**
-     * Deactivate product (soft delete)
-     */
-    public function deactivateProduct(int $productId): bool {
-        $sql = "UPDATE products SET status = 'inactive' WHERE id = :id";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([':id' => $productId]);
-    }
-    
-    /**
-     * Deactivate product variants
-     */
-    public function deactivateVariantsByProductId(int $productId): bool {
-        $sql = "UPDATE product_variants SET status = 'inactive' WHERE product_id = :pid";
-        $stmt = $this->db->prepare($sql);
-        return $stmt->execute([':pid' => $productId]);
-    }
 }
+

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $pageTitle = 'Edit User / Staff Account';
 require_once __DIR__ . '/../includes/admin-auth.php';
 require_once __DIR__ . '/../includes/csrf.php';

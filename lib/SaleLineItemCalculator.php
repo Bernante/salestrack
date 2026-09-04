@@ -42,6 +42,10 @@ class SaleLineItemCalculator
                 );
             }
             $subtotal = ($quantity / $piecesPerUnit) * $unitPrice;
+        } else if ($sellingUnit === 'half_tray') {
+            $subtotal = ($quantity / 15) * $unitPrice;
+        } else if ($sellingUnit === 'tray') {
+            $subtotal = ($quantity / 30) * $unitPrice;
         } else {
             $subtotal = $quantity * $unitPrice;
         }
